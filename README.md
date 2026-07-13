@@ -61,4 +61,4 @@ Everything in the packs is generated directly from the current Core Rulebook mar
 
 ## Credits
 
-Design: Balázs. This Foundry system was generated from the *Blightmarch* Core Rulebook and character ledger. Icons referenced are Foundry core icons (`icons/…`), shipped with Foundry VTT.
+Design: békön. This Foundry system was generated from the *Blightmarch* Core Rulebook and character ledger. Icons referenced are Foundry core icons (`icons/…`), shipped with Foundry VTT.
