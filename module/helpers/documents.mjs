@@ -22,25 +22,24 @@ export class BlightmarchActor extends Actor {
     if (this.type === "character") this._prepareCharacter();
   }
 
-  /** Auto-fill Language/Tenet from a newly-chosen Culture, and Equipment from a newly-chosen
-   *  Profession, the same way the standalone Character Ledger does — but only into empty fields.
-   *  Because the sheet's form resubmits every field on any change (not just the one that
-   *  changed), `d.languages`/`d.tenet`/`d.equipment` are always present in `changed` — so we
-   *  can't use `=== undefined` to detect "untouched"; instead only fill them when they're
-   *  blank AND the relevant choice is actually changing (not just being redundantly resubmitted). */
+  /** Set Language/Tenet from the chosen Culture, and Equipment from the chosen Profession, the
+   *  same way the standalone Character Ledger does. Because the sheet's form resubmits every
+   *  field on any change (not just the one that changed), we key off "the choice actually
+   *  changed" rather than "the target field is blank" — so re-picking a different Culture always
+   *  updates Language/Tenet to match it. */
   async _preUpdate(changed, options, user) {
     if (this.type === "character") {
       const d = changed.system?.details;
       if (d?.culture !== undefined && d.culture !== this.system.details.culture) {
         const cu = findByName(CULTURES, d.culture);
         if (cu) {
-          if (!d.languages) d.languages = cu.lang;
-          if (!d.tenet) d.tenet = cu.tenet;
+          d.languages = cu.lang;
+          d.tenet = cu.tenet;
         }
       }
       if (d?.profession !== undefined && d.profession !== this.system.details.profession) {
         const pr = findByName(PROFESSIONS, d.profession);
-        if (pr && !d.equipment) d.equipment = pr.equipment;
+        if (pr) d.equipment = pr.equipment;
       }
     }
     return super._preUpdate(changed, options, user);
