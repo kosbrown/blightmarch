@@ -1,0 +1,10 @@
+{
+  "BLIGHTMARCH.Character": "Character",
+  "BLIGHTMARCH.NPC": "Creature",
+  "BLIGHTMARCH.Reckoning": "Reckoning",
+  "BLIGHTMARCH.Masterstroke": "Masterstroke",
+  "BLIGHTMARCH.Success": "Success",
+  "BLIGHTMARCH.CostlySuccess": "Costly Success",
+  "BLIGHTMARCH.Failure": "Failure",
+  "BLIGHTMARCH.Catastrophe": "Catastrophe"
+}

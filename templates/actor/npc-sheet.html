@@ -1,0 +1,29 @@
+<form class="blightmarch-sheet npc">
+  <header class="bm-head">
+    <img class="bm-portrait" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
+    <div class="bm-headfields">
+      <input class="bm-name" type="text" name="name" value="{{actor.name}}"/>
+      <div class="bm-crumbs">
+        <input type="text" name="system.caliber" value="{{system.caliber}}" placeholder="Caliber"/>
+        <input type="text" name="system.morale" value="{{system.morale}}" placeholder="Morale"/>
+        <label class="bm-dread"><input type="checkbox" name="system.dread" {{checked system.dread}}/> Dread</label>
+      </div>
+    </div>
+  </header>
+
+  <section class="bm-derived npc">
+    <div class="dv" data-roll-competence title="Roll Competence Reckoning"><span>Competence</span><b>{{system.competence}}</b></div>
+    <div class="dv"><span>Health</span><b><input type="number" name="system.health.value" value="{{system.health.value}}"/>/<input type="number" name="system.health.max" value="{{system.health.max}}"/></b></div>
+    <div class="dv"><span>Wound Thr.</span><b><input type="number" name="system.woundThreshold" value="{{system.woundThreshold}}"/></b></div>
+    <div class="dv"><span>Defense</span><b><input type="number" name="system.defense" value="{{system.defense}}"/></b></div>
+    <div class="dv"><span>Fear</span><b><input type="number" name="system.fear" value="{{system.fear}}"/></b></div>
+  </section>
+
+  <div class="bm-npc-body">
+    <label class="bm-full">Attacks<textarea name="system.attacks">{{system.attacks}}</textarea></label>
+    <label class="bm-full">Moves<textarea name="system.moves">{{system.moves}}</textarea></label>
+    <label class="bm-full">Harvest<textarea name="system.harvest">{{system.harvest}}</textarea></label>
+    <label class="bm-full">Ecology &amp; Behavior<textarea name="system.ecology">{{system.ecology}}</textarea></label>
+    <div class="bm-note">{{#if system.dread}}<b>Dread:</b> Grievous only at 2.5&times; Threshold; free Reaction on a player's Costly Success (max 1/player/round). Read its damage honestly — a saga-beast wounds and terrifies.{{/if}}</div>
+  </div>
+</form>

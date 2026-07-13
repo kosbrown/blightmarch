@@ -1,0 +1,77 @@
+{
+  "Actor": {
+    "types": ["character", "npc"],
+    "templates": {
+      "vitals": {
+        "health": { "value": 10, "max": 10 },
+        "stamina": { "value": 10, "max": 10 }
+      }
+    },
+    "character": {
+      "templates": ["vitals"],
+      "attributes": {
+        "mig": { "value": 10 }, "agi": { "value": 10 }, "end": { "value": 10 },
+        "int": { "value": 10 }, "wil": { "value": 10 }, "pre": { "value": 10 }
+      },
+      "resolve": { "value": 20, "max": 20 },
+      "composure": { "value": 50, "max": 50 },
+      "derived": {
+        "woundThreshold": 5, "defense": 10, "initiative": 0, "meleeBonus": 0,
+        "encumbrance": 30, "ashThreshold": 10, "ritesHeld": 5, "standing": 0, "hollowAt": 5
+      },
+      "ash": { "value": 0 },
+      "brands": [],
+      "wounds": { "count": 0, "penalty": 0, "notes": "" },
+      "bleeding": 0,
+      "conditions": { "hungry": false, "parched": false, "freezing": false, "sweltering": false, "sleepless": false },
+      "deathMarks": 0,
+      "coin": { "copper": 0, "silver": 0, "gold": 0 },
+      "load": { "value": 0 },
+      "armor": { "av": 0, "burden": 0, "worn": "" },
+      "details": {
+        "concept": "", "background": "", "culture": "", "profession": "",
+        "languages": "", "tenet": "", "drive": "", "conviction": "", "trauma": "",
+        "mask": "", "ally": "", "rival": "", "secret": "", "truth": "",
+        "equipment": "", "history": "", "notes": "", "biography": ""
+      }
+    },
+    "npc": {
+      "templates": ["vitals"],
+      "caliber": "Seasoned",
+      "competence": 50,
+      "woundThreshold": 7,
+      "defense": 11,
+      "morale": "Steady",
+      "fear": 0,
+      "dread": false,
+      "attacks": "",
+      "moves": "",
+      "harvest": "",
+      "ecology": "",
+      "biography": ""
+    }
+  },
+  "Item": {
+    "types": ["weapon", "armor", "gear", "skill", "technique", "brand"],
+    "weapon": {
+      "damage": "1d6", "class": "Blade", "traits": "", "load": 1,
+      "price": "", "grade": "Common", "description": ""
+    },
+    "armor": {
+      "av": 1, "burden": 0, "load": 0, "price": "", "grade": "Common", "description": ""
+    },
+    "gear": {
+      "load": 0, "price": "", "category": "", "description": ""
+    },
+    "skill": {
+      "govA": "mig", "govB": "agi", "ranks": 0, "restricted": false,
+      "tier": "Untrained", "description": ""
+    },
+    "technique": {
+      "skill": "", "tier": "Adept", "cost": "", "description": ""
+    },
+    "brand": {
+      "index": 0, "description": ""
+    }
+  }
+}

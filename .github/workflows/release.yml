@@ -1,0 +1,61 @@
+name: Release Blightmarch to Foundry
+
+# Publishes a Foundry-installable release whenever you push a version tag (e.g. v1.10.0).
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Derive version from tag
+        id: v
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      # Rewrite system.json so manifest = latest, download = this exact tag,
+      # and all owner/repo URLs come from the repository this runs in.
+      - name: Stamp system.json
+        run: |
+          python3 - <<'PY'
+          import json, os
+          repo = os.environ["GITHUB_REPOSITORY"]           # e.g. octocat/blightmarch
+          ver  = "${{ steps.v.outputs.version }}"
+          tag  = "${{ github.ref_name }}"
+          base = f"https://github.com/{repo}"
+          d = json.load(open("system.json"))
+          d["version"]   = ver
+          d["url"]       = base
+          d["manifest"]  = f"{base}/releases/latest/download/system.json"
+          d["download"]  = f"{base}/releases/download/{tag}/blightmarch.zip"
+          d["readme"]    = f"{base}/blob/main/README.md"
+          d["bugs"]      = f"{base}/issues"
+          d["changelog"] = f"{base}/releases"
+          json.dump(d, open("system.json","w"), indent=2)
+          print("stamped", ver, "->", d["download"])
+          PY
+
+      # Zip the system with files at the archive root (Foundry install convention).
+      - name: Build blightmarch.zip
+        run: zip -r blightmarch.zip . -x '.git/*' '.github/*'
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Blightmarch ${{ github.ref_name }}
+          files: |
+            system.json
+            blightmarch.zip
+          body: |
+            **Install in Foundry VTT** → *Game Systems → Install System → Manifest URL*, paste:
+            ```
+            https://github.com/${{ github.repository }}/releases/latest/download/system.json
+            ```
+            NeDB packs migrate to LevelDB automatically on first load (a normal one-time notice).

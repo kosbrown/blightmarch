@@ -1,0 +1,119 @@
+{
+  "id": "blightmarch",
+  "title": "Blightmarch",
+  "description": "A grim sandbox sword-and-sorcery RPG of the Dying Age. Complete game system: the Reckoning (d100 roll-under), attribute-and-skill characters with no classes, brutal locationless combat, the Seam and its corruption, and a living-world engine. Bundles the full rulebook, an armory, a field-guide bestiary, the dice tables, and play macros.",
+  "version": "1.10.0",
+  "compatibility": {
+    "minimum": "11",
+    "verified": "12",
+    "maximum": "13"
+  },
+  "authors": [
+    {
+      "name": "Bal\u00e1zs (design) \u00b7 built from the Blightmarch Core Rulebook"
+    }
+  ],
+  "esmodules": [
+    "module/blightmarch.mjs"
+  ],
+  "styles": [
+    "styles/blightmarch.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "grid": {
+    "distance": 1,
+    "units": "band"
+  },
+  "packs": [
+    {
+      "name": "rulebook",
+      "label": "Blightmarch \u2014 Rulebook",
+      "path": "packs/rulebook.db",
+      "type": "JournalEntry",
+      "system": "blightmarch"
+    },
+    {
+      "name": "armory",
+      "label": "Blightmarch \u2014 The Armory",
+      "path": "packs/armory.db",
+      "type": "Item",
+      "system": "blightmarch"
+    },
+    {
+      "name": "skills",
+      "label": "Blightmarch \u2014 Skills",
+      "path": "packs/skills.db",
+      "type": "Item",
+      "system": "blightmarch"
+    },
+    {
+      "name": "techniques",
+      "label": "Blightmarch \u2014 Techniques",
+      "path": "packs/techniques.db",
+      "type": "Item",
+      "system": "blightmarch"
+    },
+    {
+      "name": "bestiary",
+      "label": "Blightmarch \u2014 Field Guide (Bestiary)",
+      "path": "packs/bestiary.db",
+      "type": "Actor",
+      "system": "blightmarch"
+    },
+    {
+      "name": "enemy-groups",
+      "label": "Blightmarch \u2014 Enemy Groups",
+      "path": "packs/enemy-groups.db",
+      "type": "Actor",
+      "system": "blightmarch"
+    },
+    {
+      "name": "tables",
+      "label": "Blightmarch \u2014 Dice Tables",
+      "path": "packs/tables.db",
+      "type": "RollTable",
+      "system": "blightmarch"
+    },
+    {
+      "name": "macros",
+      "label": "Blightmarch \u2014 Macros",
+      "path": "packs/macros.db",
+      "type": "Macro",
+      "system": "blightmarch"
+    }
+  ],
+  "packFolders": [
+    {
+      "name": "Blightmarch",
+      "sorting": "m",
+      "packs": [
+        "rulebook",
+        "armory",
+        "skills",
+        "techniques",
+        "bestiary",
+        "enemy-groups",
+        "tables",
+        "macros"
+      ]
+    }
+  ],
+  "relationships": {},
+  "url": "https://github.com/YOUR-GH-USERNAME/blightmarch",
+  "manifest": "https://github.com/YOUR-GH-USERNAME/blightmarch/releases/latest/download/system.json",
+  "download": "https://github.com/YOUR-GH-USERNAME/blightmarch/releases/download/v1.10.0/blightmarch.zip",
+  "background": "assets/cover.webp",
+  "gridDistance": 1,
+  "gridUnits": "band",
+  "primaryTokenAttribute": "health",
+  "secondaryTokenAttribute": "stamina",
+  "readme": "https://github.com/YOUR-GH-USERNAME/blightmarch/blob/main/README.md",
+  "bugs": "https://github.com/YOUR-GH-USERNAME/blightmarch/issues",
+  "changelog": "https://github.com/YOUR-GH-USERNAME/blightmarch/releases"
+}

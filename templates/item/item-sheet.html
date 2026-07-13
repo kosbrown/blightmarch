@@ -1,0 +1,54 @@
+<form class="blightmarch-sheet item">
+  <header class="bm-head">
+    <img class="bm-portrait small" src="{{item.img}}" data-edit="img"/>
+    <input class="bm-name" type="text" name="name" value="{{item.name}}"/>
+    <span class="bm-itemtype">{{item.type}}</span>
+  </header>
+
+  {{#if (eq item.type "weapon")}}
+  <div class="bm-grid2">
+    <label>Damage<input type="text" name="system.damage" value="{{system.damage}}"/></label>
+    <label>Class<input type="text" name="system.class" value="{{system.class}}"/></label>
+    <label>Traits<input type="text" name="system.traits" value="{{system.traits}}"/></label>
+    <label>Load<input type="number" name="system.load" value="{{system.load}}"/></label>
+    <label>Price<input type="text" name="system.price" value="{{system.price}}"/></label>
+    <label>Grade<input type="text" name="system.grade" value="{{system.grade}}"/></label>
+  </div>
+  {{/if}}
+
+  {{#if (eq item.type "armor")}}
+  <div class="bm-grid2">
+    <label>AV<input type="number" name="system.av" value="{{system.av}}"/></label>
+    <label>Burden<input type="number" name="system.burden" value="{{system.burden}}"/></label>
+    <label>Load<input type="number" name="system.load" value="{{system.load}}"/></label>
+    <label>Price<input type="text" name="system.price" value="{{system.price}}"/></label>
+  </div>
+  {{/if}}
+
+  {{#if (eq item.type "gear")}}
+  <div class="bm-grid2">
+    <label>Category<input type="text" name="system.category" value="{{system.category}}"/></label>
+    <label>Load<input type="number" name="system.load" value="{{system.load}}"/></label>
+    <label>Price<input type="text" name="system.price" value="{{system.price}}"/></label>
+  </div>
+  {{/if}}
+
+  {{#if (eq item.type "skill")}}
+  <div class="bm-grid2">
+    <label>Governing A<input type="text" name="system.govA" value="{{system.govA}}"/></label>
+    <label>Governing B<input type="text" name="system.govB" value="{{system.govB}}"/></label>
+    <label>Ranks<input type="number" name="system.ranks" value="{{system.ranks}}"/></label>
+    <label>Restricted<input type="checkbox" name="system.restricted" {{checked system.restricted}}/></label>
+  </div>
+  {{/if}}
+
+  {{#if (eq item.type "technique")}}
+  <div class="bm-grid2">
+    <label>Skill<input type="text" name="system.skill" value="{{system.skill}}"/></label>
+    <label>Tier<input type="text" name="system.tier" value="{{system.tier}}"/></label>
+    <label>Cost<input type="text" name="system.cost" value="{{system.cost}}"/></label>
+  </div>
+  {{/if}}
+
+  <label class="bm-full">Description<textarea name="system.description">{{system.description}}</textarea></label>
+</form>
