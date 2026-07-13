@@ -108,7 +108,7 @@
 .bm-condpen { color:var(--ember); font-size:11px; }
 .bm-coin { display:flex; gap:10px; align-items:center; } .bm-coin label { display:flex; flex-direction:column; font-size:10px; text-transform:uppercase; color:var(--bone); }
 .bm-coin input { width:70px; }
-.bm-coin-icon { width:18px; height:18px; object-fit:contain; display:inline-block; margin-bottom:2px; }
+.bm-coin-icon { width:18px; height:18px; object-fit:contain; display:inline-block; margin-bottom:2px; vertical-align:middle; }
 
 /* wound slots */
 .bm-woundslots .wline { display:flex; gap:8px; align-items:center; margin-bottom:4px; }
