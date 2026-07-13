@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.11.01cn
+- Gear section coin purse: added copper/silver/gold coin icons (18px) from `icons/`.
+- Coin icons shown inline in the copper/silver/gold conversion note, with a "Conversion" label above it.
+- Coin inputs restyled: icon sits in front of the COPPER/SILVER/GOLD label, with the input below.
+- Gear section layout: coin columns left-aligned, conversion note on the same row pushed to the right.
+- Coin columns and the conversion note reordered to Gold / Silver / Copper (was Copper / Silver / Gold).
+- Fixed: re-selecting a different Culture/Profession now always updates Language/Tenet/Equipment (previously only filled them if blank).
+
 ## v1.11.0
 - Foundry v14 compatibility: all three sheets (Character, Creature, Item) migrated from the legacy Application/ActorSheet API to ApplicationV2 + HandlebarsApplicationMixin; Dialog replaced with DialogV2; TextEditor calls use the v13+ namespaced API.
 - Character sheet redesigned to match the standalone Character Ledger's look (panels, attribute/derived cards, categorized skill table, Ash pips, native tooltips).

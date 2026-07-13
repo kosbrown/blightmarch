@@ -2,7 +2,7 @@
   "id": "blightmarch",
   "title": "Blightmarch",
   "description": "A grim sandbox sword-and-sorcery RPG of the Dying Age. Complete game system: the Reckoning (d100 roll-under), attribute-and-skill characters with no classes, brutal locationless combat, the Seam and its corruption, and a living-world engine. Bundles the full rulebook, an armory, a field-guide bestiary, the dice tables, and play macros.",
-  "version": "1.11.0",
+  "version": "1.11.01cn",
   "compatibility": {
     "minimum": "11",
     "verified": "14",
@@ -107,7 +107,7 @@
   "relationships": {},
   "url": "https://github.com/kosbrown/blightmarch",
   "manifest": "https://github.com/kosbrown/blightmarch/releases/latest/download/system.json",
-  "download": "https://github.com/kosbrown/blightmarch/releases/download/v1.11.0/blightmarch.zip",
+  "download": "https://github.com/kosbrown/blightmarch/releases/download/v1.11.01cn/blightmarch.zip",
   "background": "assets/cover.webp",
   "gridDistance": 1,
   "gridUnits": "band",
