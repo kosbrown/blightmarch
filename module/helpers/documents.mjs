@@ -1,21 +1,68 @@
 import { reckon } from "./reckoning.mjs";
+import { BACKGROUNDS, CULTURES, PROFESSIONS, findByName, grantedRanks } from "./chargen.mjs";
 
 const ATTR_KEYS = ["mig", "agi", "end", "int", "wil", "pre"];
 
 /** Actor with Blightmarch derived-statistic preparation (ledger formulas). */
 export class BlightmarchActor extends Actor {
+  /** Carry forward pre-chargen-automation actors: their entered score becomes the base score. */
+  static migrateData(source) {
+    const attrs = source?.system?.attributes;
+    if (attrs) {
+      for (const k of ATTR_KEYS) {
+        const a = attrs[k];
+        if (a && a.base === undefined && a.value !== undefined) a.base = a.value;
+      }
+    }
+    return super.migrateData(source);
+  }
+
   prepareDerivedData() {
     super.prepareDerivedData();
     if (this.type === "character") this._prepareCharacter();
   }
 
+  /** Auto-fill Language/Tenet from a newly-chosen Culture, and Equipment from a newly-chosen
+   *  Profession, the same way the standalone Character Ledger does — but only into empty fields. */
+  async _preUpdate(changed, options, user) {
+    if (this.type === "character") {
+      const d = changed.system?.details;
+      if (d?.culture !== undefined) {
+        const cu = findByName(CULTURES, d.culture);
+        if (cu) {
+          if (d.languages === undefined && !this.system.details.languages) d.languages = cu.lang;
+          if (d.tenet === undefined && !this.system.details.tenet) d.tenet = cu.tenet;
+        }
+      }
+      if (d?.profession !== undefined) {
+        const pr = findByName(PROFESSIONS, d.profession);
+        if (pr && d.equipment === undefined && !this.system.details.equipment) d.equipment = pr.equipment;
+      }
+    }
+    return super._preUpdate(changed, options, user);
+  }
+
   _prepareCharacter() {
     const sys = this.system;
     const a = sys.attributes;
-    // Attribute bonuses = score - 10
-    for (const k of ATTR_KEYS) a[k].bonus = (a[k].value ?? 10) - 10;
+    const details = sys.details;
 
-    const End = a.end.value, WP = a.wil.value, Mig = a.mig.value, Int = a.int.value, Agi = a.agi.value;
+    const bg = findByName(BACKGROUNDS, details.background);
+    const cu = findByName(CULTURES, details.culture);
+    const pr = findByName(PROFESSIONS, details.profession);
+    sys.chargen = { bg, cu, pr };
+
+    // Final score = entered base (1-20) + Background's +1 to two chosen Attributes; bonus = score - 10
+    for (const k of ATTR_KEYS) {
+      const base = Math.min(20, Math.max(1, a[k].base ?? a[k].value ?? 10));
+      a[k].base = base;
+      const bumped = !!bg?.attrs.includes(k);
+      a[k].bumped = bumped;
+      a[k].value = Math.min(20, base + (bumped ? 1 : 0));
+      a[k].bonus = a[k].value - 10;
+    }
+
+    const End = a.end.value, WP = a.wil.value, Mig = a.mig.value, Int = a.int.value;
 
     // Derived statistics — exactly the book/ledger formulas
     sys.health.max = End + 10;
@@ -45,15 +92,24 @@ export class BlightmarchActor extends Actor {
     sys.health.value = Math.min(sys.health.value ?? sys.health.max, sys.health.max);
     sys.stamina.value = Math.min(sys.stamina.value ?? sys.stamina.max, sys.stamina.max);
 
-    // Per-skill rating = govA + govB (final) + ranks; live on owned skill items
+    // Background/Culture/Profession skill grants, by skill name
+    const granted = grantedRanks(bg, cu, pr);
+
+    // Per-skill rating = govA + govB (final) + granted + free ranks; live on owned skill items
+    let freeSpent = 0;
     for (const item of this.items) {
       if (item.type !== "skill") continue;
       const s = item.system;
       const base = (a[s.govA]?.value ?? 10) + (a[s.govB]?.value ?? 10);
+      const free = s.ranks ?? 0;
+      const grant = granted[item.name] ?? 0;
+      freeSpent += free;
       s.base = base;
-      s.rating = base + (s.ranks ?? 0);
-      s.tier = tierOf(s.ranks ?? 0, s.rating);
+      s.granted = grant;
+      s.rating = base + grant + free;
+      s.tier = tierOf(grant + free, s.rating);
     }
+    sys.freeRanks = { spent: freeSpent, budget: 20, left: Math.max(0, 20 - freeSpent), over: freeSpent > 20 };
   }
 
   /** Roll a skill (or ad-hoc) Reckoning, folding in wound + condition penalties. */

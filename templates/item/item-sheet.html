@@ -1,6 +1,6 @@
-<form class="blightmarch-sheet item">
+<div class="blightmarch-sheet item">
   <header class="bm-head">
-    <img class="bm-portrait small" src="{{item.img}}" data-edit="img"/>
+    <img class="bm-portrait small" src="{{item.img}}" data-action="editImage" data-edit="img"/>
     <input class="bm-name" type="text" name="name" value="{{item.name}}"/>
     <span class="bm-itemtype">{{item.type}}</span>
   </header>
@@ -51,4 +51,4 @@
   {{/if}}
 
   <label class="bm-full">Description<textarea name="system.description">{{system.description}}</textarea></label>
-</form>
+</div>

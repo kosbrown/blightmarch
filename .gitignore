@@ -1,3 +1,7 @@
 blightmarch.zip
 *.log
 .DS_Store
+
+# Foundry auto-converts the NeDB packs/*.db compendiums to LevelDB folders
+# at runtime; the .db files remain the versioned source of truth.
+packs/*/

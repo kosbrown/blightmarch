@@ -1,153 +1,223 @@
-<form class="blightmarch-sheet">
-  <header class="bm-head">
-    <img class="bm-portrait" src="{{actor.img}}" data-edit="img" title="{{actor.name}}"/>
-    <div class="bm-headfields">
-      <input class="bm-name" type="text" name="name" value="{{actor.name}}" placeholder="Name"/>
-      <input class="bm-concept" type="text" name="system.details.concept" value="{{system.details.concept}}" placeholder="Concept — who are they, and what's wrong?"/>
-      <div class="bm-crumbs">
-        <input type="text" name="system.details.background" value="{{system.details.background}}" placeholder="Background"/>
-        <input type="text" name="system.details.culture" value="{{system.details.culture}}" placeholder="Culture"/>
-        <input type="text" name="system.details.profession" value="{{system.details.profession}}" placeholder="Profession"/>
+<div class="blightmarch-sheet ledger">
+
+  <section class="bm-section">
+    <h2>Identity</h2>
+    <header class="bm-head">
+      <div class="bm-pframe">
+        <img class="bm-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" title="{{actor.name}}"/>
+      </div>
+      <div class="bm-headfields">
+        <input class="bm-name" type="text" name="name" value="{{actor.name}}" placeholder="Name"/>
+        <input class="bm-concept" type="text" name="system.details.concept" value="{{system.details.concept}}" placeholder="Concept — who are they, and what's wrong?"/>
+        <div class="bm-crumbs">
+          <input type="text" name="system.details.languages" value="{{system.details.languages}}" placeholder="Languages"/>
+          <input type="text" name="system.details.tenet" value="{{system.details.tenet}}" placeholder="Cultural Tenet"/>
+        </div>
+      </div>
+    </header>
+  </section>
+
+  <section class="bm-section">
+    <h2>Creation <span class="note">choices below apply their bonuses automatically</span></h2>
+    <div class="grid g3">
+      <div class="field">
+        <label>Background — where they came from</label>
+        <select name="system.details.background">{{selectOptions backgroundChoices selected=system.details.background blank="— choose —"}}</select>
+        <div class="detail">{{{bgDetail}}}</div>
+      </div>
+      <div class="field">
+        <label>Culture — who raised them</label>
+        <select name="system.details.culture">{{selectOptions cultureChoices selected=system.details.culture blank="— choose —"}}</select>
+        <div class="detail">{{{cuDetail}}}</div>
+      </div>
+      <div class="field">
+        <label>Profession — what they do to eat</label>
+        <select name="system.details.profession">{{selectOptions professionChoices selected=system.details.profession blank="— choose —"}}</select>
+        <div class="detail">{{{prDetail}}}</div>
       </div>
     </div>
-  </header>
+  </section>
 
-  <section class="bm-attrs">
-    {{#each attrList as |pair|}}
-      {{#with (lookup ../system.attributes pair.0) as |a|}}
-      <div class="bm-attr" data-roll-attr="{{pair.0}}" title="Click to roll {{pair.1}} check (score x5)">
-        <div class="bm-attr-name">{{pair.1}}</div>
-        <input type="number" name="system.attributes.{{pair.0}}.value" value="{{a.value}}" min="1" max="20"/>
-        <div class="bm-attr-bonus">{{bmSigned a.bonus}}</div>
+  <section class="bm-section">
+    <h2>Attributes</h2>
+    <div class="bm-attrs">
+      {{#each attrRows}}
+      <div class="bm-attr {{#if this.bumped}}bumped{{/if}}" data-action="rollAttr" data-roll-attr="{{this.key}}" data-tooltip="Click to roll {{this.label}} check (score x5)">
+        <div class="bm-attr-name">{{this.label}}</div>
+        <div class="plus" data-tooltip="+1 from Background">+1</div>
+        <input type="number" name="system.attributes.{{this.key}}.base" value="{{this.base}}" min="1" max="20"/>
+        <div class="bm-attr-fin">{{this.value}}</div>
+        <div class="bm-attr-bonus">bonus <b>{{bmSigned this.bonus}}</b></div>
       </div>
-      {{/with}}
-    {{/each}}
+      {{/each}}
+    </div>
   </section>
 
-  <section class="bm-derived">
-    <div class="dv"><span>Health</span><b><input type="number" name="system.health.value" value="{{system.health.value}}"/>/{{system.health.max}}</b></div>
-    <div class="dv"><span>Stamina</span><b><input type="number" name="system.stamina.value" value="{{system.stamina.value}}"/>/{{system.stamina.max}}</b></div>
-    <div class="dv"><span>Resolve</span><b><input type="number" name="system.resolve.value" value="{{system.resolve.value}}"/>/{{system.resolve.max}}</b></div>
-    <div class="dv"><span>Composure</span><b>{{system.composure.max}}</b></div>
-    <div class="dv"><span>Wound Thr.</span><b>{{system.derived.woundThreshold}}</b></div>
-    <div class="dv"><span>Defense</span><b>{{system.derived.defense}}</b></div>
-    <div class="dv"><span>Init</span><b>{{bmSigned system.derived.initiative}}</b></div>
-    <div class="dv"><span>Melee Dmg</span><b>{{bmSigned system.derived.meleeBonus}}</b></div>
-    <div class="dv"><span>Encumbrance</span><b>{{system.derived.encumbrance}}</b></div>
-    <div class="dv"><span>Ash Thr.</span><b>{{system.derived.ashThreshold}}</b></div>
-    <div class="dv"><span>Rites Held</span><b>{{system.derived.ritesHeld}}</b></div>
-    <div class="dv"><span>Standing</span><b>{{system.derived.standing}}</b></div>
+  <section class="bm-section">
+    <h2>Derived <span class="note">recalculated live from final Attributes</span></h2>
+    <div class="bm-derived">
+      <div class="dv"><span>Health</span><b><input type="number" name="system.health.value" value="{{system.health.value}}"/>/{{system.health.max}}</b></div>
+      <div class="dv"><span>Stamina</span><b><input type="number" name="system.stamina.value" value="{{system.stamina.value}}"/>/{{system.stamina.max}}</b></div>
+      <div class="dv"><span>Resolve</span><b><input type="number" name="system.resolve.value" value="{{system.resolve.value}}"/>/{{system.resolve.max}}</b></div>
+      <div class="dv"><span>Composure</span><b>{{system.composure.max}}</b></div>
+      <div class="dv"><span>Wound Thr.</span><b>{{system.derived.woundThreshold}}</b></div>
+      <div class="dv"><span>Defense</span><b>{{system.derived.defense}}</b></div>
+      <div class="dv"><span>Init</span><b>{{bmSigned system.derived.initiative}}</b></div>
+      <div class="dv"><span>Melee Dmg</span><b>{{bmSigned system.derived.meleeBonus}}</b></div>
+      <div class="dv"><span>Encumbrance</span><b>{{system.derived.encumbrance}}</b></div>
+      <div class="dv"><span>Ash Thr.</span><b>{{system.derived.ashThreshold}}</b></div>
+      <div class="dv"><span>Rites Held</span><b>{{system.derived.ritesHeld}}</b></div>
+      <div class="dv"><span>Standing</span><b>{{system.derived.standing}}</b></div>
+      <div class="dv"><span>Free Ranks Left</span><b class="{{#if system.freeRanks.over}}over{{/if}}">{{system.freeRanks.left}}</b></div>
+    </div>
   </section>
-
-  <nav class="bm-tabs">
-    <a class="item" data-tab="skills">Skills</a>
-    <a class="item" data-tab="combat">Combat</a>
-    <a class="item" data-tab="ash">Ash &amp; Brands</a>
-    <a class="item" data-tab="story">Story</a>
-    <a class="item" data-tab="gear">Gear</a>
-  </nav>
 
   <div class="bm-body">
     {{!-- SKILLS --}}
-    <div class="tab" data-tab="skills">
-      <div class="bm-rowhead"><span>Skill</span><span>Gov</span><span>Base</span><span>Ranks</span><span>Rating</span><span>Tier</span><span></span></div>
-      {{#each skills as |sk|}}
-      <div class="bm-skill" data-item-id="{{sk.id}}">
-        <span class="bm-sk-name" data-roll-skill="{{sk.id}}" title="Roll {{sk.name}}">{{sk.name}}{{#if sk.system.restricted}} <em class="rst">(R)</em>{{/if}}</span>
-        <span class="bm-sk-gov">{{sk.system.govA}}+{{sk.system.govB}}</span>
-        <span class="bm-sk-base">{{sk.system.base}}</span>
-        <input class="bm-sk-ranks" type="number" name="items.{{sk.id}}.system.ranks" value="{{sk.system.ranks}}" min="0"/>
-        <span class="bm-sk-rating">{{sk.system.rating}}</span>
-        <span class="bm-sk-tier">{{sk.system.tier}}</span>
-        <span class="bm-sk-tools"><a data-growth="{{sk.id}}" title="Growth Check"><i class="fas fa-seedling"></i></a> <a data-item-delete title="Remove"><i class="fas fa-trash"></i></a></span>
+    <section class="bm-group {{#if sectionOpen.skills}}open{{/if}}" data-section="skills">
+      <h3 class="bm-grouphead" data-action="toggleSection" data-section="skills">Skills</h3>
+      <div class="bm-groupbody">
+      <div class="budget {{#if system.freeRanks.over}}over{{/if}}">Free Ranks spent: <b>{{system.freeRanks.spent}} / {{system.freeRanks.budget}}</b> · max +10 to any one skill{{#if system.freeRanks.over}} — <b>over budget</b>{{/if}}</div>
+      <div class="bm-rowhead"><span>Skill</span><span>Gov</span><span>Base</span><span>Granted</span><span>Free</span><span>Rating</span><span>Tier</span><span></span></div>
+      {{#each skillGroups}}
+      <div class="bm-skillcat">{{this.category}}</div>
+      {{#each this.rows}}
+      <div class="bm-skill" data-item-id="{{this.id}}">
+        <span class="bm-sk-name" data-action="rollSkill" data-roll-skill="{{this.id}}" data-tooltip="Roll {{this.name}}">{{this.name}}{{#if this.system.restricted}} <em class="rst">(R)</em>{{/if}}</span>
+        <span class="bm-sk-gov">{{this.system.govA}}+{{this.system.govB}}</span>
+        <span class="bm-sk-base">{{this.system.base}}</span>
+        <span class="bm-sk-granted">{{this.system.granted}}</span>
+        <input class="bm-sk-ranks" type="number" data-skill-ranks="{{this.id}}" value="{{this.system.ranks}}" min="0"/>
+        <span class="bm-sk-rating">{{this.system.rating}}</span>
+        <span class="bm-sk-tier">{{this.system.tier}}</span>
+        <span class="bm-sk-tools"><a data-action="growth" data-growth="{{this.id}}" data-tooltip="Growth Check"><i class="fas fa-seedling"></i></a> <a data-action="itemDelete" data-tooltip="Remove"><i class="fas fa-trash"></i></a></span>
       </div>
       {{/each}}
-      <button type="button" data-item-create="skill" class="bm-add">+ Skill</button>
-    </div>
+      {{/each}}
+      <button type="button" data-action="itemCreate" data-item-create="skill" class="bm-add">+ Skill</button>
+      </div>
+    </section>
 
     {{!-- COMBAT --}}
-    <div class="tab" data-tab="combat">
+    <section class="bm-group {{#if sectionOpen.combat}}open{{/if}}" data-section="combat">
+      <h3 class="bm-grouphead" data-action="toggleSection" data-section="combat">Combat</h3>
+      <div class="bm-groupbody">
       <div class="bm-grid2">
         <label>Armor Value<input type="number" name="system.armor.av" value="{{system.armor.av}}"/></label>
         <label>Burden<input type="number" name="system.armor.burden" value="{{system.armor.burden}}"/></label>
         <label>Worn<input type="text" name="system.armor.worn" value="{{system.armor.worn}}" placeholder="e.g. mail 5, helm"/></label>
-        <label>Wounds (count)<input type="number" name="system.wounds.count" value="{{system.wounds.count}}" min="0" title="Each -5, capped at -10"/></label>
         <label>Wound penalty<b class="ro">{{system.wounds.penalty}}</b></label>
         <label>Bleeding<input type="number" name="system.bleeding" value="{{system.bleeding}}" min="0"/></label>
+        <label>Death's Marks (3 = dead)<input type="number" name="system.deathMarks" value="{{system.deathMarks}}" min="0" max="3"/></label>
       </div>
-      <p class="bm-note">A Wound is net damage &ge; Wound Threshold ({{system.derived.woundThreshold}}); Grievous at &ge; 2&times;. Wound penalty stacks &minus;5, capped at &minus;10. No single blow drops a healthy PC below Downed. Even unarmored, soak 1. A second Parry/Dodge in a round costs 1 Stamina.</p>
+      <p class="bm-note">A Wound is net damage &ge; Wound Threshold ({{system.derived.woundThreshold}}); Grievous at &ge; 2&times;. Wound penalty stacks &minus;5, capped at &minus;10.</p>
+      <label class="bm-full">Wounds &amp; Injuries<textarea name="system.wounds.notes">{{system.wounds.notes}}</textarea></label>
       <div class="bm-conditions">
         <b>Conditions</b> (each &minus;5 all, &minus;2 max Stamina):
-        {{#each system.conditions as |v k|}}
-        <label class="bm-cond"><input type="checkbox" data-condition="{{k}}" {{checked v}}/> {{bmCap k}}</label>
-        {{/each}}
+        <label class="bm-cond"><input type="checkbox" name="system.conditions.hungry" {{checked system.conditions.hungry}}/> Hungry</label>
+        <label class="bm-cond"><input type="checkbox" name="system.conditions.parched" {{checked system.conditions.parched}}/> Parched</label>
+        <label class="bm-cond"><input type="checkbox" name="system.conditions.freezing" {{checked system.conditions.freezing}}/> Freezing</label>
+        <label class="bm-cond"><input type="checkbox" name="system.conditions.sweltering" {{checked system.conditions.sweltering}}/> Sweltering</label>
+        <label class="bm-cond"><input type="checkbox" name="system.conditions.sleepless" {{checked system.conditions.sleepless}}/> Sleepless</label>
         <span class="bm-condpen">{{#if system.conditionPenalty}}Active: {{system.conditionPenalty}}{{/if}}</span>
       </div>
-      <div class="bm-death"><b>Death's Marks</b> (3 = dead):
-        <input type="number" name="system.deathMarks" value="{{system.deathMarks}}" min="0" max="3"/></div>
       <h4>Weapons</h4>
-      {{#each weapons as |w|}}
-      <div class="bm-line" data-item-id="{{w.id}}"><b>{{w.name}}</b> — {{w.system.damage}} {{w.system.class}} {{#if w.system.traits}}({{w.system.traits}}){{/if}}
-        <a data-item-edit><i class="fas fa-edit"></i></a><a data-item-delete><i class="fas fa-trash"></i></a></div>
+      {{#each weapons}}
+      <div class="bm-line" data-item-id="{{this.id}}"><b>{{this.name}}</b> — {{this.system.damage}} {{this.system.class}} {{#if this.system.traits}}({{this.system.traits}}){{/if}}
+        <a data-action="itemEdit"><i class="fas fa-edit"></i></a><a data-action="itemDelete"><i class="fas fa-trash"></i></a></div>
       {{/each}}
-      <button type="button" data-item-create="weapon" class="bm-add">+ Weapon</button>
-    </div>
+      <button type="button" data-action="itemCreate" data-item-create="weapon" class="bm-add">+ Weapon</button>
+      </div>
+    </section>
 
     {{!-- ASH --}}
-    <div class="tab" data-tab="ash">
-      <div class="bm-ashline">Temporary Ash <b>{{system.ash.value}}</b> / {{system.derived.ashThreshold}} · fades 1 per clean day</div>
-      <div class="bm-pips">
-        {{#each (bmRange system.derived.ashThreshold) as |i|}}
-        <span class="bm-pip {{#if (lt i ../system.ash.value)}}on{{/if}}" data-pip="{{i}}"></span>
-        {{/each}}
+    <section class="bm-group {{#if sectionOpen.ash}}open{{/if}}" data-section="ash">
+      <h3 class="bm-grouphead" data-action="toggleSection" data-section="ash">Ash &amp; Brands</h3>
+      <div class="bm-groupbody">
+      <div class="ashpanel {{#if blighted}}blighted{{/if}}">
+        <div class="bm-ashline">Temporary Ash <b>{{system.ash.value}}</b> / {{system.derived.ashThreshold}} · fades 1 per clean day</div>
+        <div class="bm-pips">
+          {{#each ashPips}}
+          <button type="button" class="bm-pip {{#if this.on}}on{{/if}}" data-action="ashPip" data-pip="{{this.index}}" aria-label="Ash {{this.index}}"></button>
+          {{/each}}
+        </div>
+        <div class="blight">THRESHOLD REACHED — BLIGHTED. Add a Brand from the Marks of the Seam, then clear temporary Ash to zero.</div>
       </div>
-      <p class="bm-note">At the Threshold: Blighted — add a Brand (Marks of the Seam) and clear Ash to 0. Hollowing at {{system.derived.hollowAt}} Brands (half Willpower).</p>
-      <h4>Brands — {{brands.length}} / {{system.derived.hollowAt}} to Hollowing</h4>
-      {{#each brands as |b|}}
-      <div class="bm-line" data-item-id="{{b.id}}"><b>{{b.name}}</b> — {{b.system.description}}
-        <a data-item-delete><i class="fas fa-trash"></i></a></div>
+      <h4>Brands — Marks of the Seam ({{brands.length}} / {{system.derived.hollowAt}} to Hollowing)</h4>
+      <div class="brandrow">
+        <select data-brand-pick><option value="">— choose a Mark to add —</option>
+          {{#each brandCatalog}}<option value="{{this.index}}">{{this.name}}</option>{{/each}}
+        </select>
+        <button type="button" data-action="brandAdd">Add</button>
+      </div>
+      {{#each brands}}
+      <div class="bm-line" data-item-id="{{this.id}}"><b class="bm-brand-name">{{this.name}}</b> — {{this.system.description}}
+        <a data-action="itemDelete"><i class="fas fa-trash"></i></a></div>
       {{/each}}
-      <button type="button" data-item-create="brand" class="bm-add">+ Brand</button>
-    </div>
+      </div>
+    </section>
 
     {{!-- STORY --}}
-    <div class="tab" data-tab="story">
-      <div class="bm-grid2">
-        <label>Drive<input type="text" name="system.details.drive" value="{{system.details.drive}}"/></label>
-        <label>Conviction<input type="text" name="system.details.conviction" value="{{system.details.conviction}}"/></label>
-        <label>Trauma<input type="text" name="system.details.trauma" value="{{system.details.trauma}}"/></label>
-        <label>Mask &amp; Truth<input type="text" name="system.details.mask" value="{{system.details.mask}}"/></label>
-        <label>Bond — Ally<input type="text" name="system.details.ally" value="{{system.details.ally}}"/></label>
-        <label>Bond — Rival/Debt<input type="text" name="system.details.rival" value="{{system.details.rival}}"/></label>
-        <label>Languages<input type="text" name="system.details.languages" value="{{system.details.languages}}"/></label>
-        <label>Cultural Tenet<input type="text" name="system.details.tenet" value="{{system.details.tenet}}"/></label>
+    <section class="bm-group {{#if sectionOpen.story}}open{{/if}}" data-section="story">
+      <h3 class="bm-grouphead" data-action="toggleSection" data-section="story">Story</h3>
+      <div class="bm-groupbody">
+      <div class="grid g3">
+        <div class="field">
+          <label>Drive</label>
+          <select name="system.details.drive">{{selectOptions driveChoices selected=system.details.drive blank="— choose —"}}</select>
+          <div class="detail">{{{driveDetail}}}</div>
+        </div>
+        <div class="field">
+          <label>Conviction (a belief acted on at cost: +1 Resolve)</label>
+          <input type="text" name="system.details.conviction" value="{{system.details.conviction}}"/>
+        </div>
+        <div class="field">
+          <label>Trauma</label>
+          <select name="system.details.trauma">{{selectOptions traumaChoices selected=system.details.trauma blank="— choose —"}}</select>
+          <div class="detail">{{{traumaDetail}}}</div>
+        </div>
+      </div>
+      <div class="grid g3" style="margin-top:10px">
+        <div class="field"><label>Bond — Ally</label><input type="text" name="system.details.ally" value="{{system.details.ally}}"/></div>
+        <div class="field"><label>Bond — Rival/Debt</label><input type="text" name="system.details.rival" value="{{system.details.rival}}"/></div>
+        <div class="field">
+          <label>Mask &amp; Truth (optional)</label>
+          <select name="system.details.mask">{{selectOptions maskChoices selected=system.details.mask blank="— none —"}}</select>
+          <div class="detail">{{{maskDetail}}}</div>
+        </div>
       </div>
       <label class="bm-full">Secret &amp; Stakes<textarea name="system.details.secret">{{system.details.secret}}</textarea></label>
       <label class="bm-full">The Truth beneath the Mask<textarea name="system.details.truth">{{system.details.truth}}</textarea></label>
       <label class="bm-full">History &amp; Chronicle<textarea name="system.details.history">{{system.details.history}}</textarea></label>
-    </div>
+      </div>
+    </section>
 
     {{!-- GEAR --}}
-    <div class="tab" data-tab="gear">
+    <section class="bm-group {{#if sectionOpen.gear}}open{{/if}}" data-section="gear">
+      <h3 class="bm-grouphead" data-action="toggleSection" data-section="gear">Gear</h3>
+      <div class="bm-groupbody">
       <div class="bm-coin">
-        <label>Copper<input type="number" name="system.coin.copper" value="{{system.coin.copper}}" min="0"/></label>
-        <label>Silver<input type="number" name="system.coin.silver" value="{{system.coin.silver}}" min="0"/></label>
-        <label>Gold<input type="number" name="system.coin.gold" value="{{system.coin.gold}}" min="0"/></label>
-        <span class="bm-note">100 copper = 1 silver · 100 silver = 1 gold</span>
+        <label><img class="bm-coin-icon" src="systems/blightmarch/icons/copper_coin.png"/> Copper<input type="number" name="system.coin.copper" value="{{system.coin.copper}}" min="0"/></label>
+        <label><img class="bm-coin-icon" src="systems/blightmarch/icons/silver_coin.png"/> Silver<input type="number" name="system.coin.silver" value="{{system.coin.silver}}" min="0"/></label>
+        <label><img class="bm-coin-icon" src="systems/blightmarch/icons/gold_coin.png"/> Gold<input type="number" name="system.coin.gold" value="{{system.coin.gold}}" min="0"/></label>
+        <span class="bm-note">1 silver = 100 copper <br> 1 gold = 100 silver = 10,000 copper</span>
       </div>
       <div class="bm-load">Load <input type="number" name="system.load.value" value="{{system.load.value}}" min="0"/> / {{system.derived.encumbrance}}</div>
       <h4>Gear</h4>
-      {{#each gear as |g|}}
-      <div class="bm-line" data-item-id="{{g.id}}"><b>{{g.name}}</b>{{#if g.system.price}} — {{g.system.price}}{{/if}}
-        <a data-item-edit><i class="fas fa-edit"></i></a><a data-item-delete><i class="fas fa-trash"></i></a></div>
+      {{#each gear}}
+      <div class="bm-line" data-item-id="{{this.id}}"><b>{{this.name}}</b>{{#if this.system.price}} — {{this.system.price}}{{/if}}
+        <a data-action="itemEdit"><i class="fas fa-edit"></i></a><a data-action="itemDelete"><i class="fas fa-trash"></i></a></div>
       {{/each}}
-      <button type="button" data-item-create="gear" class="bm-add">+ Gear</button>
+      <button type="button" data-action="itemCreate" data-item-create="gear" class="bm-add">+ Gear</button>
       <h4>Techniques</h4>
-      {{#each techniques as |tq|}}
-      <div class="bm-line" data-item-id="{{tq.id}}"><b>{{tq.name}}</b> <em>({{tq.system.tier}})</em> — {{tq.system.description}}
-        <a data-item-delete><i class="fas fa-trash"></i></a></div>
+      {{#each techniques}}
+      <div class="bm-line" data-item-id="{{this.id}}"><b>{{this.name}}</b> <em>({{this.system.tier}})</em> — {{this.system.description}}
+        <a data-action="itemDelete"><i class="fas fa-trash"></i></a></div>
       {{/each}}
+      <button type="button" data-action="itemCreate" data-item-create="technique" class="bm-add">+ Technique</button>
       <label class="bm-full">Notes — Deeds, Formulas, Rites held<textarea name="system.details.notes">{{system.details.notes}}</textarea></label>
-    </div>
+      </div>
+    </section>
   </div>
-</form>
+
+</div>

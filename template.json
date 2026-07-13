@@ -10,8 +10,8 @@
     "character": {
       "templates": ["vitals"],
       "attributes": {
-        "mig": { "value": 10 }, "agi": { "value": 10 }, "end": { "value": 10 },
-        "int": { "value": 10 }, "wil": { "value": 10 }, "pre": { "value": 10 }
+        "mig": { "base": 10, "value": 10 }, "agi": { "base": 10, "value": 10 }, "end": { "base": 10, "value": 10 },
+        "int": { "base": 10, "value": 10 }, "wil": { "base": 10, "value": 10 }, "pre": { "base": 10, "value": 10 }
       },
       "resolve": { "value": 20, "max": 20 },
       "composure": { "value": 50, "max": 50 },

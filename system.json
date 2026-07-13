@@ -2,15 +2,15 @@
   "id": "blightmarch",
   "title": "Blightmarch",
   "description": "A grim sandbox sword-and-sorcery RPG of the Dying Age. Complete game system: the Reckoning (d100 roll-under), attribute-and-skill characters with no classes, brutal locationless combat, the Seam and its corruption, and a living-world engine. Bundles the full rulebook, an armory, a field-guide bestiary, the dice tables, and play macros.",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "compatibility": {
     "minimum": "11",
-    "verified": "12",
-    "maximum": "13"
+    "verified": "14",
+    "maximum": "14"
   },
   "authors": [
     {
-      "name": "Bal\u00e1zs (design) \u00b7 built from the Blightmarch Core Rulebook"
+      "name": "békön (design) \u00b7 built from the Blightmarch Core Rulebook"
     }
   ],
   "esmodules": [
@@ -105,15 +105,15 @@
     }
   ],
   "relationships": {},
-  "url": "https://github.com/YOUR-GH-USERNAME/blightmarch",
-  "manifest": "https://github.com/YOUR-GH-USERNAME/blightmarch/releases/latest/download/system.json",
-  "download": "https://github.com/YOUR-GH-USERNAME/blightmarch/releases/download/v1.10.0/blightmarch.zip",
+  "url": "https://github.com/kosbrown/blightmarch",
+  "manifest": "https://github.com/kosbrown/blightmarch/releases/latest/download/system.json",
+  "download": "https://github.com/kosbrown/blightmarch/releases/download/v1.11.0/blightmarch.zip",
   "background": "assets/cover.webp",
   "gridDistance": 1,
   "gridUnits": "band",
   "primaryTokenAttribute": "health",
   "secondaryTokenAttribute": "stamina",
-  "readme": "https://github.com/YOUR-GH-USERNAME/blightmarch/blob/main/README.md",
-  "bugs": "https://github.com/YOUR-GH-USERNAME/blightmarch/issues",
-  "changelog": "https://github.com/YOUR-GH-USERNAME/blightmarch/releases"
+  "readme": "https://github.com/kosbrown/blightmarch/blob/main/README.md",
+  "bugs": "https://github.com/kosbrown/blightmarch/issues",
+  "changelog": "https://github.com/kosbrown/blightmarch/releases"
 }

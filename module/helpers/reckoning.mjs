@@ -90,27 +90,23 @@ export async function reckonDialog({ rating = 50, label = "Reckoning", actor = n
     "Trivial (+40)": 40, "Easy (+20)": 20, "Normal (0)": 0,
     "Hard (\u221220)": -20, "Very Hard (\u221240)": -40, "Nearly Impossible (\u221260)": -60
   }).map(([k, v]) => `<option value="${v}"${v === 0 ? " selected" : ""}>${k}</option>`).join("");
-  return new Promise((resolve) => {
-    new Dialog({
-      title: `Reckoning \u2014 ${label}`,
-      content:
-        `<form class="bm-dialog">
-           <div class="form-group"><label>Skill Rating</label>
-             <input type="number" name="rating" value="${rating}" min="1" max="120"/></div>
-           <div class="form-group"><label>Difficulty</label>
-             <select name="diff">${diffOptions}</select></div>
-         </form>`,
-      buttons: {
-        roll: {
-          label: "Roll", icon: '<i class="fas fa-dice"></i>',
-          callback: (html) => {
-            const r = Number(html.find('[name="rating"]').val());
-            const d = Number(html.find('[name="diff"]').val());
-            resolve(reckon({ rating: r, diff: d, label, actor }));
-          }
-        }
-      },
-      default: "roll"
-    }).render(true);
+
+  const result = await foundry.applications.api.DialogV2.wait({
+    window: { title: `Reckoning \u2014 ${label}` },
+    content:
+      `<div class="form-group"><label>Skill Rating</label>
+         <input type="number" name="rating" value="${rating}" min="1" max="120"/></div>
+       <div class="form-group"><label>Difficulty</label>
+         <select name="diff">${diffOptions}</select></div>`,
+    buttons: [{
+      action: "roll", label: "Roll", icon: "fas fa-dice", default: true,
+      callback: (event, button) => ({
+        rating: Number(button.form.elements.rating.value),
+        diff: Number(button.form.elements.diff.value)
+      })
+    }],
+    rejectClose: false
   });
+  if (!result) return null;
+  return reckon({ rating: result.rating, diff: result.diff, label, actor });
 }
