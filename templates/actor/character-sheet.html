@@ -197,9 +197,20 @@
       <h3 class="bm-grouphead" data-action="toggleSection" data-section="gear">Gear</h3>
       <div class="bm-groupbody">
       <div class="bm-coin">
-        <label><img class="bm-coin-icon" src="systems/blightmarch/icons/copper_coin.png"/> Copper<input type="number" name="system.coin.copper" value="{{system.coin.copper}}" min="0"/></label>
-        <label><img class="bm-coin-icon" src="systems/blightmarch/icons/silver_coin.png"/> Silver<input type="number" name="system.coin.silver" value="{{system.coin.silver}}" min="0"/></label>
-        <label><img class="bm-coin-icon" src="systems/blightmarch/icons/gold_coin.png"/> Gold<input type="number" name="system.coin.gold" value="{{system.coin.gold}}" min="0"/></label>
+        <div class="bm-coin-row">
+          <div class="bm-coin-col">
+            <label><img class="bm-coin-icon" src="systems/blightmarch/icons/copper_coin.png"/> Copper</label>
+            <input type="number" name="system.coin.copper" value="{{system.coin.copper}}" min="0"/>
+          </div>
+          <div class="bm-coin-col">
+            <label><img class="bm-coin-icon" src="systems/blightmarch/icons/silver_coin.png"/> Silver</label>
+            <input type="number" name="system.coin.silver" value="{{system.coin.silver}}" min="0"/>
+          </div>
+          <div class="bm-coin-col">
+            <label><img class="bm-coin-icon" src="systems/blightmarch/icons/gold_coin.png"/> Gold</label>
+            <input type="number" name="system.coin.gold" value="{{system.coin.gold}}" min="0"/>
+          </div>
+        </div>
         <span class="bm-note">1 <img class="bm-coin-icon" src="systems/blightmarch/icons/silver_coin.png"/> = 100 <img class="bm-coin-icon" src="systems/blightmarch/icons/copper_coin.png"/> <br> 1 <img class="bm-coin-icon" src="systems/blightmarch/icons/gold_coin.png"/> = 100 <img class="bm-coin-icon" src="systems/blightmarch/icons/silver_coin.png"/> = 10,000 <img class="bm-coin-icon" src="systems/blightmarch/icons/copper_coin.png"/></span>
       </div>
       <div class="bm-load">Load <input type="number" name="system.load.value" value="{{system.load.value}}" min="0"/> / {{system.derived.encumbrance}}</div>
