@@ -2,7 +2,7 @@
 
 A complete Foundry VTT game system built from the *Blightmarch* Core Rulebook and the character ledger. It brings the whole game to the virtual table: playable character sheets (the ledger, reborn), creature sheets, the Reckoning dice engine, and eight compendium packs holding the rulebook, an armory, a field-guide bestiary, the dice tables, and play macros.
 
-Compatible with **Foundry VTT v11–v13** (verified v12).
+Compatible with **Foundry VTT v11–v14** (verified v12).
 
 ---
 
