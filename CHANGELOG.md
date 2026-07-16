@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.13.0
+
+Content update. **All Foundry-side code (ApplicationV2 sheets, chargen catalogs, coin icons) is unchanged from 1.11.01cn — this release only refreshes the bundled rulebook text and fixes the version string.**
+
+- **Version string repaired.** `1.11.01cn` was not valid semver (leading zero, trailing letters), so Foundry could not compare it and update detection broke. This release is `1.13.0`, aligning the package with Core Rulebook Rev 1.13.
+- **`packs/rulebook.db` regenerated** from the current book text. Includes the prose-pruning pass (architecture narration, over-explanation and justifying tails, formulaic chapter openings removed) and the new Chapter 1 section **"Which Skill? — Boundaries"**, which gives every overlapping skill a single question it answers (Tracking = "which way did it go?", Hunting = "can I kill and take it?", and so on).
+- The other seven compendium packs are byte-identical to 1.11.01cn — no regeneration needed.
+- Book-side changes not visible in Foundry: the jumpstart adventure was rebuilt ("Two Silver a Tail"), and the four pregenerated characters were rebuilt as legal, derivable builds after an audit found their skill Ratings were not obtainable from the Background/Culture/Profession tables.
+
 ## v1.11.01cn
 - Gear section coin purse: added copper/silver/gold coin icons (18px) from `icons/`.
 - Coin icons shown inline in the copper/silver/gold conversion note, with a "Conversion" label above it.
