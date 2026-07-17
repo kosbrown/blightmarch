@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blightmarch — Character Ledger</title>
+<style>
+:root{
+  --soot:#16120e; --panel:#201913; --panel2:#271f17; --line:#3c3226; --line2:#2c251c;
+  --ink:#e9dfca; --bone:#b3a78d; --faint:#8a7f68;
+  --ember:#c05a30; --ember-dim:#8a3f24; --ash:#9184a8; --gold:#d0a84a;
+  --ok:#7d9663; --bad:#c05046;
+  --mono:'DejaVu Sans Mono','Menlo','Consolas',monospace;
+  --serif:'Georgia','DejaVu Serif','Times New Roman',serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--soot);color:var(--ink);font:15px/1.5 var(--serif)}
+.wrap{max-width:1100px;margin:0 auto;padding:18px 16px 60px}
+
+/* ---------- masthead ---------- */
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;
+  border-bottom:3px double var(--ember-dim);padding-bottom:14px;margin-bottom:18px}
+.brand .over{font-size:11px;letter-spacing:5px;color:var(--bone);text-transform:uppercase}
+.brand h1{margin:2px 0 0;font-size:30px;letter-spacing:6px;text-transform:uppercase;font-weight:normal}
+.brand h1 b{color:var(--ember);font-weight:normal}
+.brand .under{font-size:11px;letter-spacing:3px;color:var(--faint);text-transform:uppercase;margin-top:3px}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+button{font:12px var(--serif);letter-spacing:2px;text-transform:uppercase;color:var(--ink);
+  background:var(--panel2);border:1px solid var(--line);padding:8px 14px;cursor:pointer}
+button:hover{border-color:var(--ember);color:var(--ember)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid var(--ember);outline-offset:1px}
+
+/* ---------- panels & fields ---------- */
+section{background:var(--panel);border:1px solid var(--line2);margin-bottom:16px;padding:14px 16px}
+h2{margin:0 0 12px;font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--ember);font-weight:normal;
+  border-bottom:1px solid var(--line);padding-bottom:6px}
+h2 .note{float:right;color:var(--faint);letter-spacing:1px;font-size:10px;text-transform:none;font-weight:normal}
+label{display:block;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--bone);margin-bottom:4px}
+input[type=text],input[type=number],select,textarea{width:100%;background:var(--soot);border:1px solid var(--line);
+  color:var(--ink);font:14px var(--serif);padding:7px 8px;height:auto}
+input[type=number]{font-family:var(--mono)}
+textarea{resize:vertical;min-height:54px;line-height:1.45}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--bone) 50%),linear-gradient(135deg,var(--bone) 50%,transparent 50%);
+  background-position:calc(100% - 16px) center,calc(100% - 11px) center;background-size:5px 5px;background-repeat:no-repeat;padding-right:30px}
+/* grids: align-items:start keeps every cell's top edge flush regardless of tooltip height */
+.grid{display:grid;gap:12px;align-items:start}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column}
+.field>label{min-height:14px}
+@media(max-width:820px){.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.g2,.g3{grid-template-columns:1fr}}
+.detail{font-size:12.5px;color:var(--bone);border-left:3px solid var(--ember-dim);background:var(--panel2);
+  padding:7px 10px;margin-top:8px;min-height:34px}
+.detail b{color:var(--ink);font-weight:normal}
+.detail .tag{color:var(--ember)}
+.mini{font-size:11.5px;color:var(--faint);margin-top:6px;line-height:1.5}
+.mini b{color:var(--ink);font-weight:normal}
+.mini .warn{color:var(--bad)}
+
+/* ---------- identity + portrait ---------- */
+.idgrid{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:start}
+@media(max-width:620px){.idgrid{grid-template-columns:1fr}}
+.pframe{width:150px;height:186px;border:1px solid var(--line);background:var(--soot);display:flex;align-items:center;
+  justify-content:center;overflow:hidden;position:relative}
+.pframe img{width:100%;height:100%;object-fit:cover;display:none}
+.pframe .ph{font-size:10px;letter-spacing:2px;color:var(--faint);text-transform:uppercase;text-align:center;padding:8px}
+.pbtns{display:flex;gap:6px;margin-top:6px;width:150px}
+.pbtns button{flex:1;padding:6px 4px;font-size:9px;letter-spacing:1px}
+
+/* ---------- attributes ---------- */
+.attrs{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+@media(max-width:820px){.attrs{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:440px){.attrs{grid-template-columns:repeat(2,1fr)}}
+.attr{background:var(--panel2);border:1px solid var(--line);padding:10px 8px;text-align:center;position:relative}
+.attr .nm{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--bone)}
+.attr input{width:66px;margin:8px auto 6px;text-align:center;font-size:18px;display:block}
+.attr .plus{position:absolute;top:7px;right:7px;font:11px var(--mono);color:var(--ember);
+  border:1px solid var(--ember-dim);padding:0 4px;display:none}
+.attr.bumped .plus{display:block}
+.attr .fin{font:22px var(--mono);color:var(--ink);line-height:1.1}
+.attr .bn{font:12px var(--mono);color:var(--faint)}
+.attr .bn b{color:var(--gold);font-weight:normal}
+
+/* ---------- derived ---------- */
+.der{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+@media(max-width:900px){.der{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:620px){.der{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:440px){.der{grid-template-columns:repeat(2,1fr)}}
+.dv{background:var(--soot);border:1px solid var(--line);padding:8px;text-align:center;display:flex;flex-direction:column;justify-content:flex-start}
+.dv .l{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--bone);min-height:22px;display:flex;align-items:center;justify-content:center}
+.dv .v{font:19px var(--mono);color:var(--ink);margin-top:2px}
+.dv .v small{font-size:11px;color:var(--faint)}
+.dv .v input{width:50px;display:inline-block;text-align:center;padding:2px 3px;font-size:15px;margin:0}
+.dv .sub{font-size:9.5px;color:var(--faint);margin-top:3px;min-height:12px}
+
+/* ---------- skills ---------- */
+.budget{font:13px var(--mono);color:var(--bone);margin-bottom:10px}
+.budget b{color:var(--ink);font-weight:normal}
+.budget.over b{color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:9.5px;letter-spacing:1.2px;text-transform:uppercase;color:var(--bone);text-align:left;
+  border-bottom:1px solid var(--line);padding:6px;font-weight:normal;vertical-align:bottom}
+td{border-bottom:1px solid var(--line2);padding:5px 6px;vertical-align:middle}
+td.num,th.num{text-align:center;font-family:var(--mono)}
+tr.cat td{background:var(--panel2);color:var(--ember);font-size:10.5px;letter-spacing:3px;text-transform:uppercase;
+  padding:6px;border-bottom:1px solid var(--line)}
+.gov{color:var(--faint);font-size:11.5px;white-space:nowrap}
+.rst{color:var(--ember);font-family:var(--mono);font-size:11px}
+td input.free{width:54px;text-align:center;padding:4px 3px;margin:0}
+td input.free.bad{border-color:var(--bad);color:var(--bad)}
+.rating{font:15px var(--mono)}
+.tier{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;padding:2px 6px;border:1px solid var(--line);color:var(--faint);white-space:nowrap;display:inline-block}
+.tier.t1{color:var(--bone);border-color:var(--bone)}
+.tier.t2{color:var(--ink);border-color:var(--bone)}
+.tier.t3{color:var(--ember);border-color:var(--ember-dim)}
+.tier.t4{color:var(--ember);border-color:var(--ember)}
+.tier.t5{color:var(--gold);border-color:var(--gold)}
+.gmtag{font-size:9px;color:var(--ember);border:1px dotted var(--ember-dim);padding:0 3px;margin-left:5px;letter-spacing:1px}
+.legend{font-size:11px;color:var(--faint);margin-top:10px;line-height:1.6}
+
+/* ---------- trackers ---------- */
+.trk{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:16px;align-items:start}
+@media(max-width:900px){.trk{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.trk{grid-template-columns:1fr}}
+.sub-h{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--bone);margin:0 0 8px}
+.sub-h.mt{margin-top:16px}
+.sub-h[data-tip]{border-bottom:1px dashed var(--faint);display:inline-block}
+.wline{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.wline span{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--faint);width:70px;flex:none}
+.wline input[type=text]{flex:1}
+.chk{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px;color:var(--bone)}
+.chk input{width:auto;flex:none}
+.coin{display:flex;gap:8px}
+.coin>div{flex:1}
+.coin-icon{width:16px;height:16px;object-fit:contain;vertical-align:-3px}
+.coin .field>label{display:flex;align-items:center;gap:4px}
+
+/* ---------- ash ---------- */
+.ashpanel{border:1px solid var(--line);background:linear-gradient(180deg,var(--panel2),var(--panel));padding:14px 16px}
+.ashpanel.blighted{border-color:var(--ash)}
+.pips{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0 8px}
+.pip{width:15px;height:15px;transform:rotate(45deg);border:1px solid var(--bone);cursor:pointer;background:transparent;padding:0}
+.pip.on{background:linear-gradient(135deg,var(--ember),var(--ash));border-color:var(--ash)}
+.pip:hover{border-color:var(--ember)}
+.ashline{font:13px var(--mono);color:var(--bone)}
+.ashline b{color:var(--ink);font-weight:normal}
+.blight{display:none;margin-top:10px;padding:8px 11px;border:1px solid var(--ash);color:var(--ash);
+  font-size:12px;letter-spacing:.5px;line-height:1.5}
+.ashpanel.blighted .blight{display:block}
+.hollow{font-size:11px;color:var(--faint);margin-top:8px}
+/* brand rows */
+.brandrow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-bottom:7px}
+.brandrow select{width:100%}
+.brandrow button{padding:6px 10px;font-size:10px}
+.brandeff{font-size:11.5px;color:var(--faint);margin:-2px 0 8px 2px;line-height:1.45;min-height:0}
+.brandeff b{color:var(--ash);font-weight:normal}
+#brandList:empty::after{content:"No Brands yet. Each is permanent — and several of them help. That is the trap.";
+  font-size:11.5px;color:var(--faint);font-style:italic}
+
+footer{font-size:11px;color:var(--faint);border-top:1px solid var(--line);padding-top:12px;line-height:1.7}
+
+/* ---------- tooltips ---------- */
+#tip{position:fixed;z-index:99;display:none;max-width:390px;background:#0f0c09;color:var(--ink);
+  border:1px solid var(--line);border-left:3px solid var(--ember);padding:10px 13px;
+  font:12.5px/1.55 var(--serif);white-space:pre-line;box-shadow:0 8px 22px rgba(0,0,0,.6);pointer-events:none}
+[data-tip]{cursor:help}
+label[data-tip]{border-bottom:1px dashed var(--faint)}
+h2[data-tip]::after{content:"?";display:inline-block;border:1px solid var(--ember-dim);color:var(--ember);
+  width:14px;height:14px;line-height:13px;text-align:center;font-size:10px;margin-left:8px;vertical-align:1px}
+th[data-tip]{border-bottom:1px dashed var(--faint)}
+
+/* ---------- print ---------- */
+@media print{
+  :root{--soot:#fff;--panel:#fff;--panel2:#f4efe4;--line:#9a8f79;--line2:#c9beac;--ink:#1c1712;
+    --bone:#5a5142;--faint:#6b6152;--ember:#7a2a1d;--ember-dim:#7a2a1d;--ash:#5c5170;--gold:#8a6a1f}
+  body{font-size:12px}
+  .tools,.hint,.pbtns{display:none}
+  section{break-inside:avoid;border-color:#c9beac}
+  input,select,textarea{border:0;border-bottom:1px solid #9a8f79;background:transparent}
+  .pip{border-color:#5a5142}.pip.on{background:#7a2a1d}
+  #tip{display:none!important}
+  label[data-tip],.sub-h[data-tip],th[data-tip]{border-bottom:0}
+  h2[data-tip]::after{content:""}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="brand">
+    <div class="over">Blightmarch &middot; A Roleplaying Game of the Dying Age</div>
+    <h1>Character <b>Ledger</b></h1>
+    <div class="under">Muster roll of the Cindral Reach · every entry pays its way</div>
+  </div>
+  <div class="tools">
+    <button id="btnSave" type="button">Save ledger</button>
+    <button id="btnLoad" type="button">Load ledger</button>
+    <input type="file" id="fileLoad" accept=".json" style="display:none">
+    <button type="button" onclick="window.print()">Print / PDF</button>
+  </div>
+</header>
+
+<section>
+  <h2>Identity</h2>
+  <div class="idgrid">
+    <div>
+      <div class="pframe" id="pframe" data-tip="A likeness for the muster roll. The image is downscaled and stored inside this ledger's save file — nothing leaves the page.">
+        <img id="pimg" alt="Character portrait">
+        <div class="ph" id="pph">No portrait<br>on file</div>
+      </div>
+      <div class="pbtns">
+        <button type="button" id="btnPortrait">Set portrait</button>
+        <button type="button" id="btnPortraitX">Remove</button>
+      </div>
+      <input type="file" id="filePortrait" accept="image/*" style="display:none">
+    </div>
+    <div class="grid g3">
+      <div class="field"><label for="f-name">Name</label><input type="text" id="f-name" data-save></div>
+      <div class="field"><label for="f-player">Player</label><input type="text" id="f-player" data-save></div>
+      <div class="field"><label for="f-campaign">Campaign</label><input type="text" id="f-campaign" data-save></div>
+      <div class="field" style="grid-column:1/-1"><label for="f-concept">Concept — who are they, and what's wrong?</label><input type="text" id="f-concept" data-save></div>
+      <div class="field"><label for="f-lang">Languages</label><input type="text" id="f-lang" data-save placeholder="from Culture"></div>
+      <div class="field" style="grid-column:span 2"><label for="f-tenet">Cultural Tenet (kept or overridden)</label><input type="text" id="f-tenet" data-save></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Creation <span class="note">choices below apply their bonuses automatically</span></h2>
+  <div class="grid g3">
+    <div class="field">
+      <label for="sel-bg">Background — where they came from</label>
+      <select id="sel-bg" data-save><option value="">— choose —</option></select>
+      <div class="detail" id="det-bg">Grants +1 to two Attributes, two skills, and a Scar.</div>
+    </div>
+    <div class="field">
+      <label for="sel-cu">Culture — who raised them</label>
+      <select id="sel-cu" data-save><option value="">— choose —</option></select>
+      <div class="detail" id="det-cu">Grants a Language, one skill at +10, and a Tenet.</div>
+    </div>
+    <div class="field">
+      <label for="sel-pr">Profession — what they do to eat</label>
+      <select id="sel-pr" data-save><option value="">— choose —</option></select>
+      <div class="detail" id="det-pr">Grants three skills, an equipment package, and a Trade Boon.</div>
+    </div>
+  </div>
+  <div class="mini hint" style="margin-top:12px">Attributes: assign the array <b>14 · 12 · 11 · 10 · 9 · 8</b> (the Measured Path) or roll 3d6 six times (the Roll of Fate) — the Background's two +1s are added for you. Then spend <b>20 Free Ranks</b> in the skill table, max +10 to any one skill.</div>
+</section>
+
+<section>
+  <h2>Attributes</h2>
+  <div class="attrs" id="attrRow"></div>
+</section>
+
+<section>
+  <h2>Derived <span class="note">recalculated live from final Attributes</span></h2>
+  <div class="der" id="derRow"></div>
+  <div class="mini" id="stamNote"></div>
+</section>
+
+<section>
+  <h2>Skills <span class="note">Rating = Base Chance (two governing Attributes) + Ranks</span></h2>
+  <div class="budget" id="budget"></div>
+  <table id="skillTable"></table>
+  <div class="legend"><span class="rst">(R)</span> Restricted — no starting Ranks without a story reason agreed with the GM (Ch. 1 §4). Tiers: Novice 1–25 · Journeyman 26–50 · Adept 51–75 (first Technique) · Master 76–95 (second Technique) · Legendary 96+. The die's top belongs to the world at any Rating: <b>96–99 always fails, 100 is always a Catastrophe</b>; difficulty clamps the effective Rating to 5–95. Opposed rolls: the better degree wins, and on a tie the higher <i>successful</i> roll takes it.</div>
+</section>
+
+<section>
+  <h2>Trackers</h2>
+  <div class="trk">
+    <div>
+      <p class="sub-h" data-tip="Net damage (after AV) ≥ Wound Threshold: a Wound (stacking −5, capped at −10). ≥ 2× Threshold: Grievous — roll the weapon's critical table. A Masterstroke or a strike on an unaware foe is automatically Grievous. No single blow drops a healthy PC (above ½ Health) below Downed — death must be finished. Internal Bleeding needs Surgery; what's gone is gone (Ch. 3).">Wounds &amp; injuries</p>
+      <div id="woundRows"></div>
+      <div class="wline" style="margin-top:8px"><span>Bleeding</span><input type="number" id="f-bleed" data-save min="0" style="width:66px;flex:none"> <span style="width:auto;text-transform:none;letter-spacing:0">/ end of turn</span></div>
+      <div class="chk"><input type="checkbox" id="dm1" data-save><input type="checkbox" id="dm2" data-save><input type="checkbox" id="dm3" data-save> <span data-tip="At 0 Health you are Downed: each turn a Death Reckoning (d100 vs Endurance × 5). Failure marks one box; at three, you die. Any hit while Downed marks one; a Grievous Wound while Downed is death outright. Medicine stabilizes.">Death's Marks — at three, the ledger closes</span></div>
+    </div>
+    <div>
+      <p class="sub-h" data-tip="Hungry (a day without a real meal) · Parched · Freezing · Sweltering · Sleepless.&#10;Each: −5 to all Reckonings and −2 maximum Stamina, stacking. Escalation: each full day, Endurance × 5 or lose 1d4 Health, and Health can't recover while it holds. Insulated gear prevents ordinary Freezing (Ch. 5).">Conditions</p>
+      <div class="chk"><input type="checkbox" class="cond" id="c-hun" data-save><label for="c-hun" style="margin:0;display:inline">Hungry</label></div>
+      <div class="chk"><input type="checkbox" class="cond" id="c-par" data-save><label for="c-par" style="margin:0;display:inline">Parched</label></div>
+      <div class="chk"><input type="checkbox" class="cond" id="c-fre" data-save><label for="c-fre" style="margin:0;display:inline">Freezing</label></div>
+      <div class="chk"><input type="checkbox" class="cond" id="c-swe" data-save><label for="c-swe" style="margin:0;display:inline">Sweltering</label></div>
+      <div class="chk"><input type="checkbox" class="cond" id="c-sle" data-save><label for="c-sle" style="margin:0;display:inline">Sleepless</label></div>
+      <div class="mini" id="condNote"></div>
+      <p class="sub-h mt" data-tip="Armor Value subtracts from each hit before the Wound Threshold check. Burden subtracts from maximum Stamina and gives −5 × Burden to Stealth, Acrobatics, and climbing. Heavy leathers AV 2 · Gambeson 3 / Burden 1 · Mail hauberk 5 / 2 · Half-plate 6 / 3 · Full harness 7 / 4. Even the unarmored soak 1 (Ch. 3).">Armor</p>
+      <div class="wline"><span>Burden</span><input type="number" id="f-burden" data-save min="0" value="0" style="width:66px;flex:none"></div>
+      <div class="wline"><span>AV worn</span><input type="text" id="f-av" data-save placeholder="e.g. mail 4, helm"></div>
+    </div>
+    <div>
+      <p class="sub-h" data-tip="Load units: dagger/tool 0 · one-handed weapon, bow, shield 1 · two-handed/polearm 2 · worn armor Burden × 2 · day's food 1 · bedroll/cloak 1 · 100 coins 1 · a carried body 6.&#10;Over the Encumbrance Threshold (Might × 3): Burdened (+2 Burden, −10 Ath/Acr/Stealth). Over double: cargo that walks.">Load &amp; Coin</p>
+      <div class="wline"><span>Load</span><input type="number" id="f-load" data-save min="0" value="0" style="width:66px;flex:none"><span style="width:auto;text-transform:none;letter-spacing:0" id="loadMax"></span></div>
+      <div class="mini" id="loadNote"></div>
+      <div class="coin" style="margin-top:12px">
+        <div class="field"><label for="f-cp">Copper</label><input type="number" id="f-cp" data-save min="0"></div>
+        <div class="field"><label for="f-cs">Silver</label><input type="number" id="f-cs" data-save min="0"></div>
+        <div class="field"><label for="f-cm">Gold</label><input type="number" id="f-cm" data-save min="0"></div>
+      </div>
+      <div class="mini" data-tip="Anchors: a laborer's day 20 copper · inn and board 40 copper · a Common arming sword 5 silver · a Fine one from a named smith 20 silver and a waiting list.">100 copper = 1 silver · 100 silver = 1 gold</div>
+    </div>
+  </div>
+</section>
+
+<section class="ashpanel" id="ashPanel">
+  <h2 style="color:var(--ash);border-color:var(--line)">Ash &amp; the Brands <span class="note">Ash Threshold = Willpower</span></h2>
+  <div class="ashline">Temporary Ash <b id="ashVal">0</b> / <b id="ashThr">—</b> &nbsp;·&nbsp; tap the pips &nbsp;·&nbsp; fades 1 per clean day</div>
+  <div class="pips" id="pips"></div>
+  <div class="blight">THRESHOLD REACHED — BLIGHTED. Add a Brand from the Marks of the Seam (below), then clear temporary Ash to zero. There is no save.</div>
+
+  <div class="grid g2" style="margin-top:14px">
+    <div>
+      <p class="sub-h" data-tip="The Marks of the Seam (d10, Ch. 4 §5). Pick from the table or roll and pick. Each Brand is permanent; several of them help — that is the trap. Add one each time Ash reaches the Threshold.">Brands — Marks of the Seam</p>
+      <div class="brandrow">
+        <select id="brandPick"><option value="">— choose a Mark to add —</option></select>
+        <button type="button" id="brandAdd">Add</button>
+      </div>
+      <div id="brandList"></div>
+      <div class="hollow" id="hollowNote"></div>
+    </div>
+    <div class="field">
+      <label for="f-debts" data-tip="The ledgers others hold: Pact-Way Debts (every spirit Rite creates one; they compound) and enchantment Hungers (upkeep an item demands — unfed, it goes quiet, or worse).">Debts, Hungers &amp; standing costs</label>
+      <textarea id="f-debts" data-save style="min-height:120px"></textarea>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Drive, Conviction &amp; Trauma</h2>
+  <div class="grid g3">
+    <div class="field">
+      <label for="sel-drive" data-tip="Why they're doing any of this (d8, Ch. 2 §7). Acting on the Drive at real risk: the GM may grant +10 to the relevant Reckoning — once per session.">Drive</label>
+      <select id="sel-drive" data-save><option value="">— choose or roll d8 —</option></select>
+      <div class="detail" id="det-drive">The engine under everything the character does.</div>
+    </div>
+    <div class="field">
+      <label for="f-conv" data-tip="One thing they believe enough to act on. Act on it at real cost: recover 1 Resolve at the end of the scene. Abandon it for convenience: it's marked Broken — rewrite between sessions, but take 1 Trauma first.">Conviction (a belief acted on at cost: +1 Resolve)</label>
+      <input type="text" id="f-conv" data-save>
+      <div class="mini">Written by the player — one sentence they'd stake something on.</div>
+    </div>
+    <div class="field">
+      <label for="sel-trauma" data-tip="Every character starts with one Trauma (d8, Ch. 2 §7), or from the Background's Scar. When the Trigger occurs, the GM calls for the Flinch — not optional. Defy the Flinch: spend 3 Resolve to suppress it once.">Trauma</label>
+      <select id="sel-trauma" data-save><option value="">— choose or roll d8 —</option></select>
+      <div class="detail" id="det-trauma">A scar that still bites: a Trigger, and a Flinch.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Bonds, Secret &amp; the Mask</h2>
+  <div class="grid g3">
+    <div class="field"><label for="f-ally" data-tip="Name them. What would they do for you that they'd do for no one else? What have you never told them?">Bond — Ally</label><input type="text" id="f-ally" data-save></div>
+    <div class="field"><label for="f-rival" data-tip="Name them. What's owed, and in which direction? What happens if it's never settled?">Bond — Debt or Rival</label><input type="text" id="f-rival" data-save></div>
+    <div class="field">
+      <label for="sel-mask" data-tip="Optional complexity archetypes (Ch. 2 §9) — each pairs a Mask with a Truth and a mechanical Hook. Choose one for its effect below.">Mask &amp; Truth (optional)</label>
+      <select id="sel-mask" data-save><option value="">— none —</option></select>
+      <div class="detail" id="det-mask">A public face over a private Truth, with a Hook.</div>
+    </div>
+  </div>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="field"><label for="f-secret" data-tip="One fact that isn't public. Write the fact, the Stakes if it comes out, and Who Knows. The GM should always know when it might go off.">Secret — and its Stakes if it gets out</label><textarea id="f-secret" data-save></textarea></div>
+    <div class="field"><label for="f-truth" data-tip="What's actually there beneath the Mask — for you and the GM.">The Truth beneath the Mask</label><textarea id="f-truth" data-save></textarea></div>
+  </div>
+</section>
+
+<section>
+  <h2>Equipment, History &amp; Notes</h2>
+  <div class="grid g3">
+    <div class="field"><label for="f-equip" data-tip="The Profession's package lands here automatically; edit freely. Items are unique in this world — name, provenance, maker, Virtues, Flaws, and the Deeds they accrue in play (Ch. 5).">Equipment</label><textarea id="f-equip" data-save style="min-height:120px"></textarea></div>
+    <div class="field"><label for="f-history" data-tip="Where they've been before the table met them: the war, the guild, the grave they shouldn't have opened. The Scar, Tenet, and Secret all grew somewhere.">History &amp; chronicle</label><textarea id="f-history" data-save style="min-height:120px"></textarea></div>
+    <div class="field"><label for="f-notes" data-tip="Deeds on named items, Formulas and Recipes (+10 to repeat), and which Rites are held — Intellect ÷ 2 from memory; the rest cast from the text at −10.">Notes — Deeds, Formulas, Rites held</label><textarea id="f-notes" data-save style="min-height:120px"></textarea></div>
+  </div>
+</section>
+
+<footer>
+  Formulas in force — Health = End + 10 · Stamina = End + Willpower · Resolve = Willpower × 2 · Composure = Willpower × 5 ·
+  Wound Threshold = End ÷ 2 (round up) · Defense = 10 + Agility Bonus · Initiative = Agility Bonus · Melee Damage Bonus = Might Bonus ·
+  Encumbrance Threshold = Might × 3 · Ash Threshold = Willpower · Rites held = Intellect ÷ 2.
+  The Reckoning: d100 at or under Rating; Costly Success to Rating + 20 (max 95); <b>96–99 always fails, 100 is always a Catastrophe</b>; difficulty clamps to 5–95.
+  <br><b>Hover, tap, or keyboard-focus</b> any dashed-underlined term, stat plate, Rating, or ⟨?⟩ header for the governing rule and the live math.
+  <br>Where the book has a table, this ledger has a dropdown — Background, Culture, Profession, Drive, Trauma, Mask, and the Brands all carry their rules with them. Nothing leaves the file: <b>Save ledger</b> downloads a .json (portrait included) you can reload anytime.
+</footer>
+
+</div>
+<script>
+"use strict";
+/* ============ GAME DATA — Blightmarch, Chs. 1–4 ============ */
+const ATTRS=[["mig","Might"],["agi","Agility"],["end","Endurance"],["int","Intellect"],["wil","Willpower"],["pre","Presence"]];
+const AN=Object.fromEntries(ATTRS);
+const SKILLS=[
+ ["Combat",[
+  ["Heavy Weapons","mig","agi"],["Light Weapons","agi","agi"],["Polearms","mig","agi"],
+  ["Unarmed & Grappling","mig","mig"],["Archery","agi","int"],["Thrown Weapons","agi","mig"],["Shield Craft","mig","end"]]],
+ ["Physical",[
+  ["Athletics","mig","end"],["Acrobatics","agi","agi"],["Stealth","agi","int"],
+  ["Wilderness Survival","end","int"],["Riding","agi","end"]]],
+ ["Mental & Knowledge",[
+  ["Lore: History","int","int"],["Lore: Nature","int","end"],["Lore: Occult","int","wil","R"],
+  ["Alchemy","int","end"],["Medicine","int","agi"],["Engineering","int","mig"],["Navigation","int","agi"]]],
+ ["Social",[
+  ["Persuasion","pre","int"],["Intimidation","pre","mig"],["Deception","pre","int"],
+  ["Insight","int","wil"],["Leadership","pre","wil"],["Streetwise","pre","int"]]],
+ ["Craft & Trade",[
+  ["Blacksmithing","mig","int"],["Carpentry","agi","int"],["Leatherworking","agi","int"],
+  ["Cooking","int","end"],["Brewing & Distilling","int","end"],["Herbalism","int","end"]]],
+ ["Wilderness & Underworld",[
+  ["Tracking","int","end"],["Hunting","agi","int"],["Larceny","agi","agi"],["Sailing","agi","int"]]],
+ ["Esoteric",[
+  ["Ritual Casting","wil","int","R"]]]
+];
+const BG=[
+ ["Ward-Orphan",["agi","end"],{"Larceny":15,"Streetwise":10},"A face from the fire you can't forget."],
+ ["Fallen House Scion",["pre","int"],{"Lore: History":15,"Persuasion":10},"Your family's ruin was not an accident, and someone knows why."],
+ ["Temple-Raised",["wil","int"],{"Insight":15,"Medicine":10},"You stopped believing the night you saw what the rites were actually for."],
+ ["War-Born",["mig","end"],{"Heavy Weapons":10,"Wilderness Survival":15},"You killed someone before you were old enough to understand what that meant."],
+ ["Village-Bound",["end","int"],{"Herbalism":15,"Lore: Nature":10},"The harvest failed once before, in a year everyone agreed never to speak of."],
+ ["Road-Born",["agi","pre"],{"Riding":15,"Navigation":10},"You still don't know why your caravan really changed its route that one winter."],
+ ["Guild-Bound",["int","mig"],{"Blacksmithing":15,"Engineering":10},"The master who trained you vanished owing a debt you inherited without asking."],
+ ["Condemned",["wil","end"],{"Intimidation":15,"Larceny":10},"There's a mark on you — brand, ledger, or memory — that says exactly what you did."],
+ ["Sailor's Get",["agi","end"],{"Sailing":15,"Athletics":10},"The sea took someone from you and gave nothing back."],
+ ["Hunter's Kin",["agi","int"],{"Hunting":15,"Tracking":10},"You know a place in the deep woods the animals refuse to enter, and you've never told anyone why."]
+];
+const CU=[
+ ["Highland Clans","Old Clan-Tongue",{"Athletics":10},"A debt unpaid is a wound unhealed."],
+ ["River-Cities","Trade-Cant",{"Persuasion":10},"Everything has a price; the fool is the one who doesn't know his."],
+ ["Steppe-Riders","Steppe-Tongue",{"Riding":10},"The land doesn't belong to anyone who stops moving."],
+ ["Coastal Free Towns","Coastal Pidgin",{"Sailing":10},"Loyalty is bought fresh every season; anyone who says otherwise is selling something."],
+ ["Feudal Heartlands","High Courtly",{"Lore: History":10},"Your place was decided before you were born; what you do with it is the only choice you get."],
+ ["Deep-Forest Folk","Wood-Speech",{"Lore: Nature":10},"The forest remembers everyone who breaks a promise in it."]
+];
+const PR=[
+ ["Sellsword",{"Heavy Weapons":20,"Shield Craft":15,"Intimidation":10},"Worn arming sword, dented shield, patched mail","Once per session, treat a Costly Success on a combat skill as a plain Success."],
+ ["Hedge-Alchemist",{"Alchemy":25,"Herbalism":15,"Medicine":10},"Traveling still, locked case of components, battered formulary","Once per day, attempt an Alchemy Reckoning without a material component (Ch. 5)."],
+ ["Former Soldier",{"Polearms":20,"Athletics":15,"Leadership":10},"Spear, worn gambeson, a unit token from a war no one discusses","+10 to Reckonings made to steady a routed ally (Ch. 3)."],
+ ["Poacher",{"Archery":20,"Stealth":15,"Hunting":15},"Hunting bow, skinning kit, a mental map of every warden's blind spot","Always knows whether a wild area is actively patrolled."],
+ ["Con Artist",{"Deception":20,"Insight":15,"Streetwise":15},"Forged papers (at least one still good), fine clothes worn thin at the cuffs","Once per session, retroactively declare a piece of \u201cestablished\u201d backstory true."],
+ ["Lay Priest (Excommunicate)",{"Insight":20,"Lore: History":15,"Medicine":10},"Symbol of a faith that no longer claims them, a much-read prayer book","Resolve recovers fully on a full night's rest instead of half (Ch. 4)."],
+ ["Grave-Robber",{"Lore: History":15,"Larceny":15,"Athletics":10},"Collapsible spade, grave-wax candle, unsold \u201cfinds\u201d","+20 to Reckonings to appraise a found object's age and value."],
+ ["Camp Cook",{"Cooking":25,"Herbalism":15,"Brewing & Distilling":10},"Well-kept knife roll, portable cookpot, a spice satchel worth more than it looks","A prepared meal's bonus applies to the whole party, not just the cook (Ch. 5)."],
+ ["Wandering Medic",{"Medicine":25,"Herbalism":15,"Insight":10},"Surgeon's roll, clean bandages, a ledger of favors owed","A Masterstroke on Medicine heals an additional Wound level (Ch. 3)."],
+ ["Smuggler",{"Sailing":15,"Streetwise":15,"Deception":15},"False-bottomed chest, a share in a small unmarked boat, three names that owe a favor","+20 to Reckonings to conceal goods from a search."]
+];
+/* d8 Drives (Ch.2 §7) */
+const DRIVES=[
+ ["Debt","you owe something to someone, or something, that can't be repaid in coin."],
+ ["Vengeance","someone specific has to answer for something specific."],
+ ["Atonement","you did a thing you cannot undo, and you're trying to be someone else now."],
+ ["Legacy","you're building or protecting something meant to outlast you."],
+ ["Hunger","you want more than you have, and you've stopped pretending otherwise."],
+ ["Belonging","you're looking for a place, or people, that will actually keep you."],
+ ["Curiosity","some question matters more to you than your own safety."],
+ ["Freedom","someone or something owns a piece of you, and you intend to take it back."]
+];
+/* d8 Traumas (Ch.2 §7) — name, trigger, flinch */
+const TRAUMAS=[
+ ["The Cold Room","Confinement, being trapped","−20 to all Reckonings until you act to escape or fight free."],
+ ["The Silence After","Sudden violence against someone helpless","Willpower Reckoning or freeze for one exchange."],
+ ["The Debt of Breath","Someone dies because of a choice you made","−20 to Reckonings touching that person's name, image, or memory, for the rest of the scene."],
+ ["The Watching Dark","Magic used nearby, or its aftermath","−10 to all Reckonings until real distance is put between you and the working."],
+ ["Never Enough","Offered charity or unearned help","Willpower Reckoning to accept it gracefully."],
+ ["The Last Order","Given a direct command by an authority figure","Willpower Reckoning to refuse it, even when refusal is clearly right."],
+ ["Salt and Ash","Fire, or the smell of a structure burning","−20 to all Reckonings for the rest of the scene."],
+ ["The Unanswered Question","A direct lie, told to your face, by someone you trusted","You believe it once, automatically — no Reckoning permitted."]
+];
+/* d10 Marks of the Seam — Brands (Ch.4 §5) */
+const BRANDS=[
+ ["Ash-Veined","Grey webbing under the skin. −5 to Presence-based Reckonings with strangers; +5 Intimidation."],
+ ["Beast-Eyes","See in darkness as dim light. Animals refuse you: −10 Riding and handling."],
+ ["Numb Flesh","Ignore the −5 from one Wound at a time — but you don't feel Bleeding; the GM tracks it in secret."],
+ ["The Wrong Shadow","Your shadow lags and looks elsewhere. −10 Stealth in any light; once per day it warns you: +10 against one ambush."],
+ ["Cold Hearth","Fires gutter near you. Fire damage against you −1; everything you cook tastes of ash (−10 Cooking)."],
+ ["Whisper-Ear","Once per session, ask the GM one yes/no question; the Seam answers truthfully. Each use: +1 Ash."],
+ ["The Other Hunger","You must consume something unspeakable daily — grave-soil, tallow, raw liver — or take a Hungry Condition no food removes."],
+ ["Leaking Dreams","Sleepers near you share your nightmares: the whole camp takes −5 to recovery unless you sleep apart."],
+ ["Stitched Voice","Two voices speak when you do. −10 Deception; +5 Ritual Casting."],
+ ["The Burning Sigil","A scar-glyph. Your Rites cost 1 less Resolve — and anyone trained to see it senses you within Near range."]
+];
+/* Masks & Truths (Ch.2 §9) — name, hook */
+const MASKS=[
+ ["The Velvet Mask","Once per session, treat any Social skill as Deception for one Reckoning."],
+ ["The Long Game","Once per session, bank an unused Reckoning as Preparation; spend it later for an automatic Success on something you could plausibly have set up."],
+ ["The Beautiful Ruin","+20 in service of the obsession — but the GM may complicate even a plain Success."],
+ ["The Last Vow","Downgrade your own result one degree to serve the Vow; recover 2 Resolve when you do."]
+];
+const WOUNDSLOTS=["Wound / injury","Wound / injury","Wound / injury","Grievous / critical","Grievous / critical"];
+
+/* ============ TOOLTIP TEXT — rules & calculation ============ */
+const ATIP={
+ mig:"MIGHT — raw physical power: muscle, force, the ability to break, carry, and kill with the body.\nGoverns: Heavy Weapons, Grappling · Feeds: Melee Damage Bonus, Encumbrance Threshold.\nBonus = score − 10. Attributes rise only through severe experience — never by spending points.",
+ agi:"AGILITY — speed, balance, coordination.\nGoverns: Light Weapons, Archery, Stealth, Acrobatics · Feeds: Initiative, Defense Rating.\nBonus = score − 10.",
+ end:"ENDURANCE — toughness: resistance to damage, disease, poison, privation.\nFeeds: Health (+10), Stamina, Wound Threshold (÷2, round up).\nBonus = score − 10.",
+ int:"INTELLECT — reasoning and memory.\nGoverns: the Lores, Alchemy, Medicine, Engineering · Feeds: Rites held (÷2).\nBonus = score − 10.",
+ wil:"WILLPOWER — discipline and self-control: resistance to fear, corruption, domination.\nFeeds: Resolve (×2), Composure (×5), Ash Threshold (= Willpower).\nBonus = score − 10.",
+ pre:"PRESENCE — force of personality: to be believed, feared, or obeyed.\nGoverns: Persuasion, Intimidation, Deception, Leadership.\nFeeds: Standing = Presence — the cap on loyal Followers and close Bonds; once per session, leading openly at real risk, lend your Presence Bonus to one ally who can see or hear you.\nBonus = score − 10."};
+const DTIP={
+ health:"HEALTH = Endurance + 10.\nAt 0: Downed — each turn a Death Reckoning (d100 vs Endurance × 5). Failure marks a Death's Mark; three = dead. Any hit while Downed marks one; a Grievous Wound while Downed kills. Medicine stabilizes.",
+ stam:"STAMINA = Endurance + Willpower. A second Parry or Dodge in the same round costs 1 Stamina (the anti-outnumbering guard).\nFuel for Techniques and hard effort. Armor Burden and Conditions cut the maximum.\nAt 0: Exhausted — −20 to everything, no Reactions.\nRecovery: full only with a night's sleep AND a real meal (Ch. 5); rations alone restore half.",
+ resolve:"RESOLVE = Willpower × 2 — the mind's fuel.\nSpend: Rites · Grit the Teeth (2 for +10 Composure) · Defy the Flinch (3 to suppress a Trauma once).\nRecover: half on a night's rest (Lay Priest: full) · a full day of peace: all · acting on your Conviction at cost: +1.\nFloor 0 — no casting on credit; a Rite needs its full cost in hand.\nAt 0: Spent — no casting, −10 to Willpower Reckonings, failed Composure counts as Catastrophe.",
+ comp:"COMPOSURE = Willpower × 5.\nRoll d100 under it vs a source's Fear rating (e.g. −20).\nFailure: Shaken (−10, can't close). Catastrophe: Panicked. Masterstroke: immune this scene; allies who see it gain +5.",
+ wthr:"WOUND THRESHOLD = Endurance ÷ 2, round up.\nNet damage (after armor) ≥ Threshold: a Wound. ≥ 2×: Grievous — roll the weapon's critical table. Optional Hardened Floor: never below 4.",
+ def:"DEFENSE RATING = 10 + Agility Bonus.\nAttackers subtract 5 × (your Defense − 10) from their attack Reckonings.",
+ init:"INITIATIVE = Agility Bonus.\nStart of combat: d10 + bonus. 1 Action + 1 Reaction each round — outnumbering matters.",
+ mdb:"MELEE DAMAGE BONUS = Might Bonus.\nAdded to melee and thrown damage rolls.",
+ enc:"ENCUMBRANCE THRESHOLD = Might × 3.\nLoad above it: Burdened (+2 Burden, −10 Ath/Acr/Stealth). Above double: cargo that walks.",
+ ashthr:"ASH THRESHOLD = Willpower.\nWhen temporary Ash reaches it: Blighted — add a Brand (Marks of the Seam) and clear Ash to 0. No save.",
+ rites:"RITES HELD = Intellect ÷ 2, round down — Rites castable from memory. Others cast from the text at −10.",
+ frl:"THE CREATION POOL: 20 Free Ranks, max +10 to any one skill. Restricted (R) skills still need the GM's sign-off."};
+const HTIP={
+ base:"BASE CHANCE = the two Governing Attributes added. A few skills name one Attribute twice (Light Weapons = Agi+Agi) — deliberately swingier, rewarding specialists (Ch. 1).",
+ gov:"Each skill is governed by two Attributes; their sum is its Base Chance.",
+ grant:"Ranks from Background + Culture + Profession, applied automatically. Hover a value for its sources.",
+ free:"From the 20-rank creation pool — max +10 to any one skill.",
+ rating:"RATING = Base Chance + Ranks.\nTHE RECKONING: roll d100 ≤ Rating.\n≤ Rating ÷ 5 (round up): MASTERSTROKE · ≤ Rating: Success · to Rating + 20 (max 95): COSTLY SUCCESS · above: Failure · 96–99: always Failure (World's Share) · 100: always Catastrophe.\nDifficulty ±20/40/60, clamped 5–95.",
+ tier:"Novice 1–25 · Journeyman 26–50 · Adept 51–75 (first Technique) · Master 76–95 (second) · Legendary 96+ (bespoke Ability).\nUntrained (0 Ranks) cannot attempt Restricted skills.",
+ rst:"RESTRICTED — dangerous knowledge nobody gets by accident. No starting Ranks without a story reason agreed with the GM (Ch. 1 §4)."};
+
+/* ============ BUILD STATIC UI ============ */
+const $=id=>document.getElementById(id);
+function opt(sel,arr,label){arr.forEach((r,i)=>{const o=document.createElement('option');o.value=i;o.textContent=label?label(r,i):r[0];sel.appendChild(o)})}
+opt($('sel-bg'),BG);opt($('sel-cu'),CU);opt($('sel-pr'),PR);
+opt($('sel-drive'),DRIVES,(r,i)=>`${i+1}. ${r[0]}`);
+opt($('sel-trauma'),TRAUMAS,(r,i)=>`${i+1}. ${r[0]}`);
+opt($('sel-mask'),MASKS);
+opt($('brandPick'),BRANDS,(r,i)=>`${i+1}. ${r[0]}`);
+
+$('attrRow').innerHTML=ATTRS.map(([k,n])=>`
+ <div class="attr" id="card-${k}" data-tip="${ATIP[k]}">
+   <div class="nm">${n}</div><div class="plus" data-tip="+1 from Background — added on top of the entered base score.">+1</div>
+   <input type="number" id="base-${k}" data-save min="1" max="20" value="10" aria-label="${n} base score">
+   <div class="fin" id="fin-${k}">10</div>
+   <div class="bn">bonus <b id="bn-${k}">+0</b></div>
+ </div>`).join('');
+
+$('derRow').innerHTML=
+ `<div class="dv" data-tip="${DTIP.health}"><div class="l">Health</div><div class="v"><input type="number" id="cur-health" data-save min="0"><small>/ <span id="d-health">—</span></small></div></div>
+  <div class="dv" data-tip="${DTIP.stam}"><div class="l">Stamina</div><div class="v"><input type="number" id="cur-stam" data-save min="0"><small>/ <span id="d-stam">—</span></small></div><div class="sub" id="d-stamEff"></div></div>
+  <div class="dv" data-tip="${DTIP.resolve}"><div class="l">Resolve</div><div class="v"><input type="number" id="cur-resolve" data-save min="0"><small>/ <span id="d-resolve">—</span></small></div></div>
+  <div class="dv" tabindex="0" data-tip="${DTIP.comp}"><div class="l">Composure</div><div class="v" id="d-comp">—</div></div>
+  <div class="dv" tabindex="0" data-tip="${DTIP.wthr}"><div class="l">Wound Threshold</div><div class="v" id="d-wthr">—</div></div>
+  <div class="dv" tabindex="0" data-tip="${DTIP.def}"><div class="l">Defense</div><div class="v" id="d-def">—</div></div>
+  <div class="dv" tabindex="0" data-tip="${DTIP.init}"><div class="l">Initiative</div><div class="v" id="d-init">—</div></div>
+  <div class="dv" tabindex="0" data-tip="${DTIP.mdb}"><div class="l">Melee Dmg Bonus</div><div class="v" id="d-mdb">—</div></div>
+  <div class="dv" tabindex="0" data-tip="${DTIP.enc}"><div class="l">Encumbrance Thr.</div><div class="v" id="d-enc">—</div></div>
+  <div class="dv" tabindex="0" data-tip="${DTIP.ashthr}"><div class="l">Ash Threshold</div><div class="v" id="d-ashthr">—</div></div>
+  <div class="dv" tabindex="0" data-tip="${DTIP.rites}"><div class="l">Rites Held</div><div class="v" id="d-rites">—</div></div>
+  <div class="dv" tabindex="0" data-tip="${DTIP.frl}"><div class="l">Free Ranks Left</div><div class="v" id="d-frl">20</div></div>`;
+
+let rows='';
+SKILLS.forEach(([cat,list])=>{
+ rows+=`<tr class="cat"><td colspan="7">${cat}</td></tr>`;
+ list.forEach(s=>{const [nm,a,b,r]=s;const key=nm.replace(/[^A-Za-z]/g,'');
+  rows+=`<tr>
+   <td>${nm}${r?` <span class="rst" tabindex="0" data-tip="${HTIP.rst}">(R)</span>`:''}<span id="gm-${key}"></span></td>
+   <td class="gov" data-tip="Base Chance = ${AN[a]} + ${AN[b]} (final scores, after the Background's +1s).">${AN[a].slice(0,3)} + ${AN[b].slice(0,3)}</td>
+   <td class="num" id="bc-${key}">—</td>
+   <td class="num" id="gr-${key}">0</td>
+   <td class="num"><input class="free" type="number" id="fr-${key}" data-save min="0" max="10" value="0" aria-label="Free ranks: ${nm}"></td>
+   <td class="num rating" id="rt-${key}" tabindex="0">—</td>
+   <td><span class="tier" id="ti-${key}" tabindex="0">Untrained</span></td></tr>`});
+});
+$('skillTable').innerHTML=`<thead><tr><th>Skill</th><th data-tip="${HTIP.gov}">Governing</th><th class="num" data-tip="${HTIP.base}">Base</th><th class="num" data-tip="${HTIP.grant}">Granted</th><th class="num" data-tip="${HTIP.free}">Free</th><th class="num" data-tip="${HTIP.rating}">Rating</th><th data-tip="${HTIP.tier}">Tier</th></tr></thead><tbody>${rows}</tbody>`;
+
+$('woundRows').innerHTML=WOUNDSLOTS.map((l,i)=>`<div class="wline"><span style="width:120px" data-tip="${i<3?'An ordinary Wound: the Health is already gone; record the lingering −5 and any effect until healed.':'A Grievous Wound: note the critical-table result — severed, shattered, punctured — and its treatment (Ch. 3 §9).'}">${l}</span><input type="text" id="w-${i}" data-save placeholder="—" aria-label="wound ${i+1}"></div>`).join('');
+
+/* ============ STATE ============ */
+let ash=0, BRANDSEL=[], portraitData=null;
+const sk=n=>n.replace(/[^A-Za-z]/g,'');
+const clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,isNaN(v)?lo:v));
+const sgn=n=>(n>=0?'+':'')+n;
+function tierOf(ranks,rating){
+ if(ranks<=0)return['Untrained',''];
+ if(rating<=25)return['Novice','t1'];if(rating<=50)return['Journeyman','t2'];
+ if(rating<=75)return['Adept','t3'];if(rating<=95)return['Master','t4'];return['Legendary','t5'];}
+
+/* ============ CALCULATION ENGINE ============ */
+function recompute(){
+ const bg=BG[$('sel-bg').value]||null, cu=CU[$('sel-cu').value]||null, pr=PR[$('sel-pr').value]||null;
+ const dr=DRIVES[$('sel-drive').value]||null, tr=TRAUMAS[$('sel-trauma').value]||null, mk=MASKS[$('sel-mask').value]||null;
+
+ $('det-bg').innerHTML=bg?`<b>+1 ${AN[bg[1][0]]}, +1 ${AN[bg[1][1]]}</b> · ${Object.entries(bg[2]).map(([k,v])=>`${k} +${v}`).join(', ')}<br><span class="tag">Scar:</span> ${bg[3]}`:'Grants +1 to two Attributes, two skills, and a Scar.';
+ $('det-cu').innerHTML=cu?`<b>${cu[1]}</b> · ${Object.entries(cu[2]).map(([k,v])=>`${k} +${v}`).join(', ')}<br><span class="tag">Tenet:</span> ${cu[3]}`:'Grants a Language, one skill at +10, and a Tenet.';
+ $('det-pr').innerHTML=pr?`${Object.entries(pr[1]).map(([k,v])=>`${k} +${v}`).join(', ')}<br><span class="tag">Boon:</span> ${pr[3]}`:'Grants three skills, an equipment package, and a Trade Boon.';
+ $('det-drive').innerHTML=dr?`<b>${dr[0]}</b> — ${dr[1]}`:'The engine under everything the character does.';
+ $('det-trauma').innerHTML=tr?`<span class="tag">Trigger:</span> ${tr[1]}<br><span class="tag">Flinch:</span> ${tr[2]}`:'A scar that still bites: a Trigger, and a Flinch.';
+ $('det-mask').innerHTML=mk?`<span class="tag">Hook:</span> ${mk[1]}`:'A public face over a private Truth, with a Hook.';
+
+ /* attributes */
+ const fin={},bon={};
+ ATTRS.forEach(([k])=>{
+  const base=clamp(parseInt($('base-'+k).value,10),1,20);
+  const bump=bg&&bg[1].includes(k)?1:0;
+  fin[k]=Math.min(20,base+bump);bon[k]=fin[k]-10;
+  $('card-'+k).classList.toggle('bumped',!!bump);
+  $('fin-'+k).textContent=fin[k];$('bn-'+k).textContent=sgn(bon[k]);
+ });
+
+ /* derived */
+ const conds=[...document.querySelectorAll('.cond')].filter(c=>c.checked).length;
+ const burden=clamp(parseInt($('f-burden').value,10)||0,0,99);
+ const stamMax=fin.end+fin.wil, stamEff=Math.max(0,stamMax-burden-2*conds);
+ const D={health:fin.end+10,stam:stamMax,resolve:fin.wil*2,comp:fin.wil*5,
+  wthr:Math.ceil(fin.end/2),def:10+bon.agi,init:bon.agi,mdb:bon.mig,
+  enc:fin.mig*3,ashthr:fin.wil,rites:Math.floor(fin.int/2)};
+ $('d-health').textContent=D.health;$('d-stam').textContent=D.stam;$('d-resolve').textContent=D.resolve;
+ $('d-comp').textContent=D.comp;$('d-wthr').textContent=D.wthr;$('d-def').textContent=D.def;
+ $('d-init').textContent=sgn(D.init);$('d-mdb').textContent=sgn(D.mdb);
+ $('d-enc').textContent=D.enc;$('d-ashthr').textContent=D.ashthr;$('d-rites').textContent=D.rites;
+ $('d-stamEff').textContent=(burden||conds)?`eff. max ${stamEff}`:'';
+ $('condNote').innerHTML=conds?`Active: <b>−${5*conds} to all Reckonings</b>, −${2*conds} max Stamina. Escalates daily if unaddressed.`:'None — fed, watered, warm, rested.';
+ $('stamNote').innerHTML=`Stamina recovers fully only with a night's sleep and a <b>real meal</b> (Ch. 5); rations alone restore half. Resolve: a night's rest restores half${pr&&pr[0].startsWith('Lay Priest')?' — <b>your Boon: fully</b>':''}.`;
+
+ /* grants + sources */
+ const gr={},gsrc={};
+ const addG=(src,obj)=>{if(obj)Object.entries(obj).forEach(([k,v])=>{gr[k]=(gr[k]||0)+v;(gsrc[k]=gsrc[k]||[]).push(src+' +'+v)})};
+ addG('Background',bg&&bg[2]);addG('Culture',cu&&cu[2]);addG('Profession',pr&&pr[1]);
+
+ /* skills */
+ let freeUsed=0;
+ SKILLS.forEach(([,list])=>list.forEach(s=>{
+  const [nm,a,b]=s,key=sk(nm);
+  const base=fin[a]+fin[b], g=gr[nm]||0;
+  const fEl=$('fr-'+key);let f=clamp(parseInt(fEl.value,10)||0,0,99);
+  fEl.classList.toggle('bad',f>10);freeUsed+=f;
+  const ranks=g+f, rating=base+ranks, capped=Math.min(rating,95);
+  const bcEl=$('bc-'+key);bcEl.textContent=base;
+  bcEl.dataset.tip=`Base Chance ${base} = ${AN[a]} ${fin[a]} + ${AN[b]} ${fin[b]}`;
+  const grEl=$('gr-'+key);grEl.textContent=g;
+  grEl.dataset.tip=gsrc[nm]?gsrc[nm].join(' · '):'No grants yet — Background, Culture, and Profession add here automatically.';
+  const rtEl=$('rt-'+key);rtEl.textContent=rating;rtEl.style.color=ranks?'':'var(--faint)';
+  const cMax=Math.min(rating+20,95);
+  const costly=rating>=95?'— (consumed by the ceiling)':`${rating+1}–${cMax}`;
+  rtEl.dataset.tip=`RATING ${rating} = Base ${base} (${AN[a]} ${fin[a]} + ${AN[b]} ${fin[b]}) + Granted ${g} + Free ${f}\nRoll d100 ≤ ${capped}\nMasterstroke ≤ ${Math.ceil(capped/5)} · Costly Success ${costly}\n96–99: always Failure · 100: always Catastrophe\nOpposed: better degree wins; on a tie, the higher successful roll takes it`;
+  const [tn,tc]=tierOf(ranks,rating);const t=$('ti-'+key);t.textContent=tn;t.className='tier '+tc;
+  t.dataset.tip=(ranks?tn+' at Rating '+rating:'Untrained — no Ranks yet'+(s[3]?'; a Restricted skill cannot be attempted':''))+
+   '\nNovice 1–25 · Journeyman 26–50 · Adept 51–75 · Master 76–95 · Legendary 96+';
+ }));
+ const bEl=$('budget');bEl.classList.toggle('over',freeUsed>20);
+ bEl.innerHTML=`Free Ranks spent: <b>${freeUsed} / 20</b> &nbsp;·&nbsp; max +10 to any one skill${freeUsed>20?' &nbsp;— <b>over budget</b>':''}`;
+ $('d-frl').textContent=Math.max(0,20-freeUsed);$('d-frl').style.color=freeUsed>20?'var(--bad)':'';
+
+ /* autofills */
+ const langEl=$('f-lang');
+ if(cu&&(langEl.value===''||langEl.dataset.auto==='1')){langEl.value=cu[1];langEl.dataset.auto='1'}
+ const eq=$('f-equip');
+ if(pr&&(eq.value.trim()===''||eq.dataset.auto==='1')){eq.value=pr[2];eq.dataset.auto='1'}
+ const te=$('f-tenet');
+ if(cu&&(te.value.trim()===''||te.dataset.auto==='1')){te.value=cu[3];te.dataset.auto='1'}
+
+ /* load */
+ const load=clamp(parseInt($('f-load').value,10)||0,0,9999);
+ $('loadMax').textContent=`/ ${D.enc}`;
+ const over=load>D.enc,dbl=load>D.enc*2;
+ $('loadNote').innerHTML=dbl?'<span class="warn">Over double Threshold: cargo that walks.</span>':over?'<span class="warn">Burdened: +2 Burden, −10 Ath/Acr/Stealth.</span>':'Within your Encumbrance Threshold.';
+
+ /* ash */
+ const thr=D.ashthr;ash=Math.min(ash,Math.max(thr,0));
+ $('ashThr').textContent=thr;$('ashVal').textContent=ash;
+ const pips=$('pips');pips.innerHTML='';
+ for(let i=0;i<thr;i++){const p=document.createElement('button');p.type='button';p.className='pip'+(i<ash?' on':'');
+  p.setAttribute('aria-label','Ash '+(i+1));p.onclick=()=>{ash=(ash===i+1)?i:i+1;recompute()};pips.appendChild(p)}
+ $('ashPanel').classList.toggle('blighted',thr>0&&ash>=thr);
+ const hollowAt=Math.ceil(fin.wil/2);
+ $('hollowNote').innerHTML=`Brands: <b style="color:var(--ash)">${BRANDSEL.length}</b> / ${hollowAt} to Hollowing (half Willpower, round up)`+
+  (BRANDSEL.length>=hollowAt&&hollowAt>0?' — <b style="color:var(--bad)">HOLLOWING: the Seam finishes moving in (Ch. 4 §5).</b>':' — at the line, the character becomes the GM\'s.');
+}
+
+/* ============ BRANDS (dropdown → list) ============ */
+function renderBrands(){
+ $('brandList').innerHTML=BRANDSEL.map((bi,idx)=>{
+  const [nm,eff]=BRANDS[bi];
+  return `<div class="brandrow"><div><b style="color:var(--ash)">${nm}</b></div><button type="button" data-bx="${idx}">Remove</button></div><div class="brandeff">${eff}</div>`;
+ }).join('');
+ document.querySelectorAll('[data-bx]').forEach(b=>b.onclick=()=>{BRANDSEL.splice(+b.dataset.bx,1);renderBrands();recompute()});
+}
+$('brandAdd').onclick=()=>{const v=$('brandPick').value;if(v==='')return;BRANDSEL.push(+v);$('brandPick').value='';renderBrands();recompute()};
+
+/* ============ PORTRAIT ============ */
+function renderPortrait(){
+ const img=$('pimg'),ph=$('pph');
+ if(portraitData){img.src=portraitData;img.style.display='block';ph.style.display='none'}
+ else{img.removeAttribute('src');img.style.display='none';ph.style.display='block'}
+}
+$('btnPortrait').onclick=()=>$('filePortrait').click();
+$('btnPortraitX').onclick=()=>{portraitData=null;renderPortrait()};
+$('filePortrait').onchange=e=>{const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{
+   const mx=420,sc=Math.min(1,mx/Math.max(im.width,im.height));
+   const c=document.createElement('canvas');c.width=Math.round(im.width*sc);c.height=Math.round(im.height*sc);
+   c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+   portraitData=c.toDataURL('image/jpeg',0.85);renderPortrait();
+  };im.src=r.result};
+ r.readAsDataURL(f);e.target.value='';};
+
+/* ============ TOOLTIP ENGINE ============ */
+const tip=document.createElement('div');tip.id='tip';document.body.appendChild(tip);
+function showTip(el){if(!el||!el.dataset.tip)return;
+ tip.textContent=el.dataset.tip;tip.style.display='block';
+ const r=el.getBoundingClientRect(),tw=tip.offsetWidth,th=tip.offsetHeight;
+ let x=Math.max(8,Math.min(r.left+r.width/2-tw/2,innerWidth-tw-8));
+ let y=r.top-th-9;if(y<8)y=Math.min(r.bottom+9,innerHeight-th-8);
+ tip.style.left=x+'px';tip.style.top=y+'px';}
+function hideTip(){tip.style.display='none'}
+document.addEventListener('mouseover',e=>{const t=e.target.closest('[data-tip]');t?showTip(t):hideTip()});
+document.addEventListener('click',e=>{const t=e.target.closest('[data-tip]');if(t)showTip(t)});
+document.addEventListener('focusin',e=>{const t=e.target.closest('[data-tip]');if(t)showTip(t)});
+document.addEventListener('focusout',hideTip);
+addEventListener('scroll',hideTip,true);addEventListener('resize',hideTip);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hideTip()});
+
+/* section-header tips */
+const H2TIPS={
+ "Identity":"Step 1 of creation: the Concept — one sentence, who they are and what's wrong. Language and Tenet fill from Culture.",
+ "Creation":"The sequence (Ch. 2): Concept → Attributes → Background → Culture → Profession → 20 Free Ranks → Derived → Drive/Conviction/Trauma → Bonds/Secret → Mask.\nThe three choices below apply their numbers for you.",
+ "Attributes":"Rated 1–20. Most adults 6–14; 15+ renowned, 18+ legend.\nAssign 14·12·11·10·9·8, or roll 3d6 six times. Background adds +1 to two (shown as a chip). Bonus = score − 10.",
+ "Derived":"Recalculated live from final Attributes (Ch. 1 §3; Composure & Wound Threshold Ch. 3; Ash Threshold & Rites Ch. 4). Boxes are current values; formulas set the maxima.",
+ "Skills":"RATING = Base Chance + Ranks. Roll d100 at or under it — 96–99 always fails, 100 is always a Catastrophe, difficulty clamps to 5–95.\nAdvancement: mark a skill used under stakes (1/session); downtime Growth Check — d100 ABOVE current Rating improves it +1d6.",
+ "Trackers":"Chapter 3's survival ledger: wounds and injuries, privation Conditions, armor, load, coin. Hover each sub-heading for its rule.",
+ "Ash":"Ash accrues from casting (by Grade; ordering: degree bump first, then a Catastrophe doubling), Blighted places, Seam-touched food (its Corruption rating), and Weighted texts. Fades 1/clean day. At the Threshold: a Brand.",
+ "Drive":"Drive pushes (+10 1/session at real risk) · Conviction pays (+1 Resolve at cost; abandoned → Broken → 1 Trauma) · Trauma bites (Trigger → Flinch, not optional).",
+ "Bonds":"One Ally, one Debt/Rival, one Secret with Stakes — the levers NPCs, factions, and Ripples pull. The Mask adds a public face over a Truth, with a Hook.",
+ "Equipment":"Items are unique — name, provenance, maker, Virtues, Flaws, and the Deeds they accrue (Ch. 5). History and Notes travel with the character."};
+document.querySelectorAll('h2').forEach(h=>{const k=Object.keys(H2TIPS).find(k=>h.textContent.trim().startsWith(k));if(k)h.dataset.tip=H2TIPS[k]});
+$('budget').dataset.tip=DTIP.frl;
+document.querySelectorAll('.cond').forEach(c=>{const w=c.closest('.chk');if(w)w.dataset.tip="Each Condition: −5 to all Reckonings, −2 max Stamina — stacking, escalating daily until addressed."});
+
+/* ============ EVENTS ============ */
+['f-lang','f-equip','f-tenet'].forEach(id=>$(id).addEventListener('input',e=>e.target.dataset.auto='0'));
+document.addEventListener('input',e=>{if(e.target.matches('input,select,textarea'))recompute()});
+document.addEventListener('change',e=>{if(e.target.matches('input,select'))recompute()});
+
+/* ============ SAVE / LOAD ============ */
+function buildSave(){
+ const data={v:3,ash,brands:BRANDSEL.slice(),portrait:portraitData};
+ document.querySelectorAll('[data-save]').forEach(el=>{data[el.id]=el.type==='checkbox'?el.checked:el.value});
+ return data;
+}
+window.buildSave=buildSave;
+$('btnSave').onclick=()=>{
+ const data=buildSave();
+ const name=($('f-name').value.trim()||'character').toLowerCase().replace(/[^a-z0-9]+/g,'_');
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));
+ a.download=name+'_blightmarch_ledger.json';a.click();URL.revokeObjectURL(a.href);};
+$('btnLoad').onclick=()=>$('fileLoad').click();
+$('fileLoad').onchange=e=>{const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();r.onload=()=>{try{
+  const d=JSON.parse(r.result);
+  ash=d.ash||0;
+  BRANDSEL=Array.isArray(d.brands)?d.brands.filter(x=>x>=0&&x<BRANDS.length):[];
+  portraitData=(typeof d.portrait==='string'&&d.portrait.startsWith('data:image'))?d.portrait:null;
+  document.querySelectorAll('[data-save]').forEach(el=>{if(!(el.id in d))return;
+   if(el.type==='checkbox')el.checked=!!d[el.id];else el.value=d[el.id];
+   if(el.dataset.auto)el.dataset.auto='0'});
+  /* v2 back-compat: old free-text brands textarea → keep in Debts if present, ignore otherwise */
+  renderPortrait();renderBrands();recompute();
+ }catch(err){alert('That file does not read as a ledger: '+err.message)}};
+ r.readAsText(f);e.target.value='';};
+
+/* ============ INIT ============ */
+renderPortrait();renderBrands();recompute();
+</script>
+</body>
+</html>
